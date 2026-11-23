@@ -36,7 +36,7 @@ export function Sidebar() {
         <span className="nav-icon" aria-hidden="true">↗</span>
         <span>Sair</span>
       </button>
-
+    
       <div className="sidebar-version">SPRINT 01 / FUNDAÇÃO</div>
     </aside>
   );
