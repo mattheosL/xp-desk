@@ -1,26 +1,14 @@
-import type { AuthUser, StoredUser } from '../types/user';
+import type { AuthUser } from '../types/user';
 
-const USERS_KEY = 'kanban-sprint1-users';
-const SESSION_KEY = 'kanban-sprint1-session';
+const SESSION_KEY = 'xpdesk-session';
+const ACCESS_TOKEN_KEY = 'xpdesk-access-token';
+const REFRESH_TOKEN_KEY = 'xpdesk-refresh-token';
 
-export function readStoredUsers(): StoredUser[] {
-  try {
-    const raw = localStorage.getItem(USERS_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as StoredUser[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function writeStoredUsers(users: StoredUser[]): void {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
+// ── Session (user data) ──
 
 export function readSession(): AuthUser | null {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
+    const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     if (
@@ -39,21 +27,29 @@ export function readSession(): AuthUser | null {
 }
 
 export function writeSession(user: AuthUser): void {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  localStorage.setItem(SESSION_KEY, JSON.stringify(user));
 }
 
 export function clearSession(): void {
-  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
-export async function hashPassword(password: string): Promise<string> {
-  if (!globalThis.crypto?.subtle) {
-    throw new Error('Este navegador não oferece o recurso necessário para a demonstração. Abra a aplicação em localhost ou HTTPS.');
-  }
+// ── Tokens ──
 
-  const bytes = new TextEncoder().encode(password);
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, '0'))
-    .join('');
+export function readAccessToken(): string | null {
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+export function writeAccessToken(token: string): void {
+  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+}
+
+export function readRefreshToken(): string | null {
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+export function writeRefreshToken(token: string): void {
+  localStorage.setItem(REFRESH_TOKEN_KEY, token);
 }

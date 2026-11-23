@@ -16,7 +16,7 @@ export function AuthFrame({ title, subtitle, children, footer }: AuthFrameProps)
         <Link to="/login" className="brand-link" aria-label="Xp Desk — página inicial">
           <Brand />
         </Link>
-        <span className="version-label">SPRINT 01</span>
+        <span className="version-label">SPRINT 02</span>
       </div>
 
       <section className="auth-center" aria-labelledby="auth-title">

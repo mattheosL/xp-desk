@@ -2,18 +2,19 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
-import type { AuthUser, StoredUser } from '../types/user';
+import { createUser, loginUser, sessionToUser, updateUser, changePassword } from '../services/userService';
+import type { AuthUser, ChangePasswordInput, UpdateUserInput } from '../types/user';
 import {
   clearSession,
-  hashPassword,
   readSession,
-  readStoredUsers,
+  writeAccessToken,
+  writeRefreshToken,
   writeSession,
-  writeStoredUsers,
 } from '../utils/storage';
 
 interface RegisterData {
@@ -22,13 +23,14 @@ interface RegisterData {
   password: string;
 }
 
-interface AuthContextValue {
+export interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
-  loginAsDemo: () => void;
   logout: () => void;
+  updateProfile: (input: UpdateUserInput) => Promise<void>;
+  changePassword: (input: ChangePasswordInput) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -36,61 +38,53 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => readSession());
 
-  const login = useCallback(async (email: string, password: string) => {
-    const normalizedEmail = email.trim().toLowerCase();
-    const passwordHash = await hashPassword(password);
-    const account = readStoredUsers().find(
-      (item) => item.email.toLowerCase() === normalizedEmail && item.passwordHash === passwordHash,
-    );
-
-    if (!account) {
-      throw new Error('E-mail ou senha não conferem. Verifique os dados ou crie uma conta demonstrativa.');
+  // Listen for auth:expired events (fired by api.ts on failed refresh)
+  useEffect(() => {
+    function handleExpired() {
+      clearSession();
+      setUser(null);
     }
+    window.addEventListener('auth:expired', handleExpired);
+    return () => window.removeEventListener('auth:expired', handleExpired);
+  }, []);
 
-    const sessionUser: AuthUser = {
-      id: account.id,
-      username: account.username,
-      email: account.email,
-    };
-    writeSession(sessionUser);
-    setUser(sessionUser);
+  const login = useCallback(async (email: string, password: string) => {
+    const response = await loginUser({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+
+    writeAccessToken(response.accessToken);
+    writeRefreshToken(response.refreshToken);
+
+    const account = sessionToUser(response);
+    writeSession(account);
+    setUser(account);
   }, []);
 
   const register = useCallback(async ({ username, email, password }: RegisterData) => {
+    const cleanUsername = username.trim();
     const normalizedEmail = email.trim().toLowerCase();
-    const users = readStoredUsers();
-    const alreadyExists = users.some((item) => item.email.toLowerCase() === normalizedEmail);
 
-    if (alreadyExists) {
-      throw new Error('Já existe uma conta demonstrativa cadastrada com este e-mail.');
-    }
-
-    const newUser: StoredUser = {
-      id: crypto.randomUUID(),
-      username: username.trim(),
+    // 1. Create user
+    await createUser({
+      username: cleanUsername,
       email: normalizedEmail,
-      passwordHash: await hashPassword(password),
-    };
+      password,
+    });
 
-    writeStoredUsers([...users, newUser]);
+    // 2. Auto-login after registration
+    const response = await loginUser({
+      email: normalizedEmail,
+      password,
+    });
 
-    const sessionUser: AuthUser = {
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-    };
-    writeSession(sessionUser);
-    setUser(sessionUser);
-  }, []);
+    writeAccessToken(response.accessToken);
+    writeRefreshToken(response.refreshToken);
 
-  const loginAsDemo = useCallback(() => {
-    const demoUser: AuthUser = {
-      id: 'demo-local-user',
-      username: 'Visitante',
-      email: 'visitante@kanban.local',
-    };
-    writeSession(demoUser);
-    setUser(demoUser);
+    const account = sessionToUser(response);
+    writeSession(account);
+    setUser(account);
   }, []);
 
   const logout = useCallback(() => {
@@ -98,9 +92,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateProfile = useCallback(async (input: UpdateUserInput) => {
+    const current = readSession();
+    if (!current) throw new Error('Nenhum usuário autenticado.');
+
+    await updateUser(current.id, input);
+
+    const updated: AuthUser = {
+      ...current,
+      username: input.username,
+      email: input.email,
+    };
+    writeSession(updated);
+    setUser(updated);
+  }, []);
+
+  const changePasswordFn = useCallback(async (input: ChangePasswordInput) => {
+    const current = readSession();
+    if (!current) throw new Error('Nenhum usuário autenticado.');
+
+    await changePassword(current.id, input);
+  }, []);
+
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isAuthenticated: Boolean(user), login, register, loginAsDemo, logout }),
-    [user, login, register, loginAsDemo, logout],
+    () => ({
+      user,
+      isAuthenticated: Boolean(user),
+      login,
+      register,
+      logout,
+      updateProfile,
+      changePassword: changePasswordFn,
+    }),
+    [user, login, register, logout, updateProfile, changePasswordFn],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

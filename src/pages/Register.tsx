@@ -103,7 +103,7 @@ export function Register() {
             />
             
           </div>
-          <small className="field-hint">De 4 a 8 caracteres, conforme a documentação atual da API.</small>
+          <small className="field-hint">De 4 a 8 caracteres. A conta é criada no backend local em POST /api/v1/users.</small>
         </div>
 
         <div className="field-row-stacked form-field">

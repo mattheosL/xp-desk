@@ -37,7 +37,7 @@ export function Sidebar() {
         <span>Sair</span>
       </button>
 
-      <div className="sidebar-version">SPRINT 01 / FUNDAÇÃO</div>
+      <div className="sidebar-version">SPRINT 02 / USUÁRIO E PROJETOS</div>
     </aside>
   );
 }

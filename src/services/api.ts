@@ -1,7 +1,156 @@
-export interface ApiResponse<T> {
-  data: T;
+import {
+  readAccessToken,
+  readRefreshToken,
+  writeAccessToken,
+  writeRefreshToken,
+  clearSession,
+} from '../utils/storage';
+
+// ── Error class ──
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
 }
 
-export async function get<T>(factory: () => T): Promise<ApiResponse<T>> {
-  return Promise.resolve({ data: factory() });
+// ── Config ──
+
+const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+
+// ── Helpers ──
+
+function messageFromBody(body: string, status: number): string {
+  if (!body) {
+    return `A API retornou HTTP ${status}.`;
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(body);
+    if (typeof parsed === 'string' && parsed.trim()) {
+      return parsed;
+    }
+    if (parsed && typeof parsed === 'object') {
+      const record = parsed as Record<string, unknown>;
+      const candidate = record.message ?? record.error ?? record.detail;
+      if (typeof candidate === 'string' && candidate.trim()) {
+        return candidate;
+      }
+      const firstString = Object.values(record).find(
+        (value) => typeof value === 'string' && value.trim(),
+      );
+      if (typeof firstString === 'string') {
+        return firstString;
+      }
+    }
+  } catch {
+    if (body.trim()) {
+      return body.trim();
+    }
+  }
+
+  return `A API retornou HTTP ${status}.`;
+}
+
+// ── Token refresh with deduplication ──
+
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+  const refreshToken = readRefreshToken();
+  if (!refreshToken) {
+    throw new ApiError('Sessão expirada. Faça login novamente.', 401);
+  }
+
+  const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  if (!response.ok) {
+    clearSession();
+    throw new ApiError('Sessão expirada. Faça login novamente.', 401);
+  }
+
+  const data = (await response.json()) as {
+    accessToken: string;
+    refreshToken: string;
+  };
+
+  writeAccessToken(data.accessToken);
+  writeRefreshToken(data.refreshToken);
+  return data.accessToken;
+}
+
+/**
+ * Ensures only one refresh request runs at a time.
+ * Concurrent callers share the same promise.
+ */
+function refreshOnce(): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = refreshAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+// ── Main request function ──
+
+export async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  auth = true,
+): Promise<T> {
+  const headers = new Headers(options.headers);
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  if (auth) {
+    const token = readAccessToken();
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  } catch {
+    throw new ApiError(
+      'Não foi possível conectar ao servidor. Confirme se o backend está ativo.',
+      0,
+    );
+  }
+
+  // If 401 and we have a refresh token, try to refresh once and retry
+  if (response.status === 401 && auth && readRefreshToken()) {
+    try {
+      const newToken = await refreshOnce();
+      headers.set('Authorization', `Bearer ${newToken}`);
+      response = await fetch(`${API_URL}${path}`, { ...options, headers });
+    } catch {
+      clearSession();
+      window.dispatchEvent(new CustomEvent('auth:expired'));
+      throw new ApiError('Sessão expirada. Faça login novamente.', 401);
+    }
+  }
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new ApiError(messageFromBody(body, response.status), response.status);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }

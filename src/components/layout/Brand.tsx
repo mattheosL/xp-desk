@@ -1,4 +1,4 @@
-interface BrandProps {
+ interface BrandProps {
   compact?: boolean;
 }
 

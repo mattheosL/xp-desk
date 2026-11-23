@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>if-project API — Documentação</title>
+<style>
+  /* ---------- Tema escuro (padrão) ---------- */
+  :root, html[data-theme="dark"]{
+    --bg:#0d1117; --bg-soft:#131a23; --bg-card:#161d27; --border:#243040;
+    --text:#e6edf3; --text-dim:#93a1b1; --accent:#4f9cf9; --accent-2:#7c5cff;
+    --green:#3fb950; --yellow:#d29922; --red:#f85149; --radius:12px;
+    --code-bg:#0a0e14; --surface-2:rgba(255,255,255,.07); --surface-3:rgba(255,255,255,.025);
+    --hover:rgba(255,255,255,.04); --inline-bg:rgba(255,255,255,.07); --inline-fg:#9fd0ff;
+    --code-comment:#5f6f80; --scroll:#2a3646; --toggle-bg:rgba(255,255,255,.06);
+    --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  /* ---------- Tema claro ---------- */
+  html[data-theme="light"]{
+    --bg:#ffffff; --bg-soft:#f6f8fa; --bg-card:#ffffff; --border:#d8dee4;
+    --text:#1f2328; --text-dim:#57606a; --accent:#0969da; --accent-2:#8250df;
+    --green:#1a7f37; --yellow:#9a6700; --red:#cf222e;
+    --code-bg:#f6f8fa; --surface-2:rgba(0,0,0,.06); --surface-3:#f2f4f7;
+    --hover:rgba(0,0,0,.04); --inline-bg:rgba(0,0,0,.06); --inline-fg:#0550ae;
+    --code-comment:#6e7781; --scroll:#c3ccd6; --toggle-bg:rgba(0,0,0,.05);
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;color-scheme:dark}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;font-size:15px;transition:background-color .18s ease,color .18s ease}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* Layout */
+  .layout{display:flex;min-height:100vh}
+  aside{width:290px;flex:0 0 290px;background:var(--bg-soft);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 16px 40px}
+  main{flex:1;min-width:0;padding:40px 48px 100px;max-width:1180px}
+
+  /* Sidebar */
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;font-size:15px}
+  .brand h1{font-size:16px;margin:0;letter-spacing:.2px}
+  .brand small{display:block;color:var(--text-dim);font-size:11px;font-weight:400;letter-spacing:.4px;text-transform:uppercase}
+
+  .theme-toggle{width:100%;display:flex;align-items:center;gap:9px;margin:14px 0 0;padding:8px 10px;background:var(--toggle-bg);border:1px solid var(--border);border-radius:9px;color:var(--text-dim);font-family:var(--sans);font-size:12.5px;cursor:pointer;transition:.15s}
+  .theme-toggle:hover{color:var(--text);border-color:var(--accent)}
+  .theme-toggle svg{flex:0 0 auto}
+  .theme-toggle .label{flex:1;text-align:left}
+  .theme-toggle .switch{width:34px;height:18px;border-radius:20px;background:var(--border);position:relative;transition:.2s;flex:0 0 auto}
+  .theme-toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--bg-soft);transition:.2s}
+  html[data-theme="light"] .theme-toggle .switch{background:var(--accent)}
+  html[data-theme="light"] .theme-toggle .switch::after{left:18px;background:#fff}
+
+  .search{margin:18px 0 14px;position:relative}
+  .search input{width:100%;padding:9px 11px 9px 32px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none}
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,156,249,.15)}
+  .search svg{position:absolute;left:10px;top:10px;opacity:.5}
+
+  nav ol{list-style:none;margin:0;padding:0}
+  nav .group{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin:20px 0 8px}
+  nav a{display:block;padding:6px 10px;border-radius:7px;font-size:13.5px;color:var(--text-dim);border-left:2px solid transparent;margin-bottom:1px}
+  nav a:hover{background:var(--hover);color:var(--text);text-decoration:none}
+  nav a.active{background:rgba(79,156,249,.12);color:var(--accent);border-left-color:var(--accent)}
+  nav a .count{float:right;font-size:10.5px;opacity:.6;font-family:var(--mono)}
+
+  /* Content */
+  section{scroll-margin-top:24px;margin-bottom:56px}
+  h2{font-size:26px;margin:0 0 8px;letter-spacing:-.4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h2 .anchor{opacity:0;font-size:16px;color:var(--text-dim);transition:.15s}
+  h2:hover .anchor{opacity:1}
+  h3{font-size:17px;margin:28px 0 10px}
+  h4{font-size:14px;margin:20px 0 8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px}
+  p{margin:0 0 14px}
+  .lead{color:var(--text-dim);font-size:15.5px;margin-bottom:22px}
+  .muted{color:var(--text-dim)}
+  hr.sep{border:0;border-top:1px solid var(--border);margin:44px 0}
+
+  /* Cards / grids */
+  .grid{display:grid;gap:14px}
+  .grid.c2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .grid.c3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+  .card h5{margin:0 0 6px;font-size:13px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px}
+  .card .v{font-size:15px}
+  .card p:last-child{margin-bottom:0}
+
+  /* Code */
+  pre{position:relative;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;margin:0 0 16px}
+  pre code{font-family:inherit;white-space:pre}
+  .copy{position:absolute;top:8px;right:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:var(--sans)}
+  .copy:hover{color:var(--text);background:var(--toggle-bg)}
+  code.inline{font-family:var(--mono);font-size:12.5px;background:var(--inline-bg);padding:2px 6px;border-radius:5px;color:var(--inline-fg)}
+
+  /* Method badges */
+  .method{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:6px;color:#fff;white-space:nowrap;display:inline-block}
+  .m-get{background:#1f6feb}
+  .m-post{background:#238636}
+  .m-patch{background:#9e6a03}
+  .m-put{background:#8957e5}
+  .m-delete{background:#b62324}
+
+  /* Endpoint blocks */
+  .endpoint{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);margin-bottom:22px;overflow:hidden}
+  .endpoint > header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--surface-3);border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .endpoint > header .path{font-family:var(--mono);font-size:14px;color:var(--text)}
+  .endpoint > header .title{margin-left:auto;font-size:13px;color:var(--text-dim)}
+  .endpoint .body{padding:18px}
+  .endpoint .body > *:last-child{margin-bottom:0}
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:0 0 16px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-dim);font-weight:600;background:var(--surface-3)}
+  tbody tr:hover{background:var(--hover)}
+  td code{font-family:var(--mono);font-size:12.5px;color:var(--inline-fg)}
+  .req{color:var(--red);font-weight:700}
+  .opt{color:var(--text-dim)}
+
+  /* Badges */
+  .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--border);color:var(--text-dim);margin-right:6px}
+  .badge.ok{color:var(--green);border-color:rgba(63,185,80,.4);background:rgba(63,185,80,.1)}
+  .badge.warn{color:var(--yellow);border-color:rgba(210,153,34,.4);background:rgba(210,153,34,.1)}
+  .badge.err{color:var(--red);border-color:rgba(248,81,73,.4);background:rgba(248,81,73,.1)}
+  .badge.info{color:var(--accent);border-color:rgba(79,156,249,.4);background:rgba(79,156,249,.1)}
+
+  /* Callout */
+  .callout{border-left:3px solid var(--accent);background:rgba(79,156,249,.07);padding:13px 16px;border-radius:0 9px 9px 0;margin:0 0 16px;font-size:14px}
+  .callout.warn{border-color:var(--yellow);background:rgba(210,153,34,.08)}
+  .callout.err{border-color:var(--red);background:rgba(248,81,73,.07)}
+  .callout > strong:first-child{display:block;margin-bottom:3px}
+
+  /* Tree */
+  pre.tree{font-size:12.5px;line-height:1.7;color:var(--text-dim);margin:0 0 16px}
+  pre.tree .dir{color:var(--accent)}
+  pre.tree .file{color:var(--text)}
+  pre.tree .cm{color:var(--code-comment)}
+
+  /* Diagram embed */
+  .diagram{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+  .diagram img{max-width:100%;height:auto}
+  .diagram figcaption{color:var(--text-dim);font-size:12.5px;padding-top:10px;font-family:var(--sans)}
+
+  footer{border-top:1px solid var(--border);padding-top:20px;color:var(--text-dim);font-size:12.5px}
+
+  @media (max-width:900px){
+    .layout{display:block}
+    aside{position:static;width:auto;height:auto;border-right:0;border-bottom:1px solid var(--border)}
+    main{padding:26px 18px 80px}
+    h2{font-size:22px}
+    .endpoint > header .title{display:none}
+  }
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside>
+    <div class="brand">
+      <div class="logo">if</div>
+      <h1>if-project API<small>ADS · IFCE · 2026.1</small></h1>
+    </div>
+
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar entre tema claro e escuro" title="Alternar tema">
+      <svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+      </svg>
+      <span class="label" id="themeLabel">Tema escuro</span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path>
+      </svg>
+      <input id="filter" type="search" placeholder="Filtrar endpoints..." aria-label="Filtrar endpoints">
+    </div>
+
+    <nav id="toc">
+      <div class="group">Introdução</div>
+      <ol>
+        <li><a href="#visao-geral">Visão geral</a></li>
+        <li><a href="#stack">Stack e dependências</a></li>
+        <li><a href="#estrutura">Estrutura do projeto</a></li>
+        <li><a href="#execucao">Como executar</a></li>
+        <li><a href="#autenticacao">Autenticação e contexto</a></li>
+      </ol>
+
+      <div class="group">Referência</div>
+      <ol>
+        <li><a href="#convencoes">Convenções gerais</a></li>
+        <li><a href="#auth">Auth <span class="count">2</span></a></li>
+        <li><a href="#users">Users <span class="count">5</span></a></li>
+        <li><a href="#projects">Projects <span class="count">13</span></a></li>
+        <li><a href="#boards">Boards <span class="count">6</span></a></li>
+        <li><a href="#tasks">Tasks <span class="count">4</span></a></li>
+        <li><a href="#task_groups">Task groups <span class="count">5</span></a></li>
+        <li><a href="#subtasks">Subtasks <span class="count">7</span></a></li>
+        <li><a href="#erros">Erros e validação</a></li>
+      </ol>
+
+      <div class="group">Dados e arquitetura</div>
+      <ol>
+        <li><a href="#modelo">Modelo de dados</a></li>
+        <li><a href="#migrations">Migrations Flyway</a></li>
+        <li><a href="#arquitetura">Arquitetura</a></li>
+        <li><a href="#modulos">Módulos e equipes</a></li>
+        <li><a href="#observacoes">Observações técnicas</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main>
+
+    <!-- ===================== VISÃO GERAL ===================== -->
+    <section id="visao-geral">
+      <h2>if-project API <a class="anchor" href="#visao-geral">#</a></h2>
+      <p class="lead">
+        API REST para gerenciamento de projetos, quadros, colunas, tarefas e subtarefas — modelo
+        inspirado em ferramentas de kanban (Trello). Construída com <strong>Spring Boot</strong>,
+        persistência via <strong>Spring Data JDBC</strong> e <strong>JdbcClient/JdbcTemplate</strong>
+        sobre <strong>PostgreSQL</strong>, autenticação via <strong>JWT Bearer</strong> com
+        <em>refresh token</em> de uso único e migrations versionadas com <strong>Flyway</strong>.
+      </p>
+
+      <div class="grid c3">
+        <div class="card">
+          <h5>Base URL (dev)</h5>
+          <div class="v"><code class="inline">http://localhost:8080</code></div>
+        </div>
+        <div class="card">
+          <h5>Prefixo dos recursos</h5>
+          <div class="v"><code class="inline">/api/v1</code> <span class="muted">(todos os módulos)</span></div>
+        </div>
+        <div class="card">
+          <h5>Formato</h5>
+          <div class="v"><code class="inline">application/json</code></div>
+        </div>
+        <div class="card">
+          <h5>Autenticação</h5>
+          <div class="v"><span class="badge info">Authorization: Bearer</span></div>
+        </div>
+        <div class="card">
+          <h5>Endpoints mapeados</h5>
+          <div class="v"><strong>42</strong> <span class="muted">em 7 módulos</span></div>
+        </div>
+        <div class="card">
+          <h5>Java / Spring Boot</h5>
+          <div class="v"><code class="inline">25</code> · <code class="inline">4.0.5</code></div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:18px">
+        <strong>Autenticação via JWT Bearer</strong>
+        Todos os endpoints protegidos usam <code class="inline">Authorization: Bearer &lt;accessToken&gt;</code>.
+        O antigo header <code class="inline">X-User-Id</code> <strong>não é mais aceito</strong> como
+        autenticação. Login em <code class="inline">POST /api/v1/auth/login</code> e renovação em
+        <code class="inline">POST /api/v1/auth/refresh</code> — veja <a href="#auth">Auth</a>.
+      </div>
+
+      <div class="callout">
+        <strong>Rotas normalizadas</strong>
+        Todos os recursos publicam sob <code class="inline">/api/v1</code>. Os antigos
+        <code class="inline">/task</code> (singular, sem prefixo) e
+        <code class="inline">/api/v1/task_group</code> passam a ser
+        <code class="inline">/api/v1/tasks</code> e <code class="inline">/api/v1/task-groups</code>.
+        O endpoint <code class="inline">GET /task/test</code> foi <strong>removido</strong>.
+      </div>
+
+      <div class="callout">
+        <strong>Swagger / OpenAPI</strong>
+        O projeto inclui <code class="inline">springdoc-openapi-starter-webmvc-ui</code>. Com a aplicação em execução,
+        a interface fica em <code class="inline">/swagger-ui/index.html</code> e o JSON em
+        <code class="inline">/v3/api-docs</code>. Os endpoints públicos são
+        <code class="inline">/swagger-ui/**</code>, <code class="inline">/v3/api-docs/**</code>,
+        <code class="inline">/error</code>, <code class="inline">POST /api/v1/users</code>,
+        <code class="inline">POST /api/v1/users/login</code>, <code class="inline">POST /api/v1/auth/login</code>
+        e <code class="inline">POST /api/v1/auth/refresh</code>.
+      </div>
+    </section>
+
+    <!-- ===================== STACK ===================== -->
+    <section id="stack">
+      <h2>Stack e dependências <a class="anchor" href="#stack">#</a></h2>
+      <table>
+        <thead><tr><th>Dependência</th><th>Escopo</th><th>Finalidade</th></tr></thead>
+        <tbody>
+          <tr><td><code>spring-boot-starter-webmvc</code></td><td>impl</td><td>Exposição dos endpoints REST (Spring MVC)</td></tr>
+          <tr><td><code>spring-boot-starter-data-jdbc</code></td><td>impl</td><td>Repositórios e acesso a dados (Spring Data JDBC + JdbcClient/JdbcTemplate)</td></tr>
+          <tr><td><code>spring-boot-starter-validation</code></td><td>impl</td><td>Bean Validation (validação de DTOs de entrada)</td></tr>
+          <tr><td><code>spring-boot-starter-security</code></td><td>impl</td><td>Autenticação/autorização (JWT + BCrypt)</td></tr>
+          <tr><td><code>jjwt-api</code> / <code>jjwt-impl</code> / <code>jjwt-jackson 0.12.6</code></td><td>impl / runtime</td><td>Emissão e validação de tokens JWT (HMAC)</td></tr>
+          <tr><td><code>springdoc-openapi-starter-webmvc-ui 3.0.3</code></td><td>impl</td><td>Documentação OpenAPI e Swagger UI com esquema Bearer</td></tr>
+          <tr><td><code>flyway-database-postgresql</code></td><td>impl</td><td>Versionamento do banco via migrations Flyway</td></tr>
+          <tr><td><code>postgresql</code></td><td>runtime</td><td>Driver JDBC do PostgreSQL</td></tr>
+          <tr><td><code>spring-boot-devtools</code></td><td>dev</td><td>Hot reload em desenvolvimento</td></tr>
+          <tr><td>starters de teste + <code>junit-platform-launcher</code></td><td>test</td><td>Testes automatizados (JUnit 5)</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Build: <strong>Gradle 9.4.1</strong> (wrapper incluído). Java toolchain: <strong>25</strong>.</p>
+
+      <h3>Variáveis de ambiente</h3>
+      <table>
+        <thead><tr><th>Variável</th><th>Escopo</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><code>JWT_SECRET</code></td><td>produção</td><td>Chave HMAC usada para assinar/validar os tokens JWT. Em dev há fallback <code class="inline">if-project-dev-secret-key-change-me-32b+</code></td></tr>
+          <tr><td><code>CORS_ALLOWED_ORIGINS</code></td><td>dev / produção</td><td>Lista de origens separadas por vírgula. Default em dev: <code class="inline">http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===================== ESTRUTURA ===================== -->
+    <section id="estrutura">
+      <h2>Estrutura do projeto <a class="anchor" href="#estrutura">#</a></h2>
+      <p>Cada domínio segue o mesmo desenho: <code class="inline">application/controllers</code> (e às vezes <code class="inline">application/dto</code>),
+      <code class="inline">domain</code> (modelos, enums, exceções e casos de uso) e
+      <code class="inline">infra/repositories</code>. Utilitários transversais ficam em <code class="inline">_commons</code>,
+      com subpacotes <code class="inline">http</code> e <code class="inline">security</code>.</p>
+
+<pre class="tree"><code>src/main/
+├── java/br/edu/ifce/mn/ads/ifproject/
+│   ├── Startup.java
+│   ├── <span class="dir">_commons/</span>
+│   │   ├── UserLogged.java              <span class="cm"># ScopedValue com o id (UUID) do usuário</span>
+│   │   ├── UnauthenticatedException.java
+│   │   ├── <span class="dir">http/</span>
+│   │   │   ├── ApiException.java        <span class="cm"># base (HttpStatus + mensagem)</span>
+│   │   │   ├── ApiErrorResponse.java    <span class="cm"># record unificado</span>
+│   │   │   ├── ApiErrorJson.java        <span class="cm"># escrita manual em filtros</span>
+│   │   │   └── ApiExceptionHandler.java <span class="cm"># @Order(HIGHEST_PRECEDENCE)</span>
+│   │   └── <span class="dir">security/</span>
+│   │       ├── SecurityConfig.java      <span class="cm"># filtro JWT + CORS + BCrypt</span>
+│   │       ├── JwtService.java
+│   │       ├── JwtProperties.java
+│   │       ├── JwtAuthenticationFilter.java
+│   │       ├── RefreshTokenService.java
+│   │       ├── CorsProperties.java
+│   │       └── OpenApiConfig.java
+│   ├── <span class="dir">users/</span>                           <span class="cm"># 5 endpoints · /api/v1/users + /api/v1/auth</span>
+│   ├── <span class="dir">projects/</span>                        <span class="cm"># 13 endpoints · /api/v1/projects</span>
+│   ├── <span class="dir">boards/</span>                          <span class="cm"># 6 endpoints · /api/v1/boards</span>
+│   ├── <span class="dir">task/</span>                            <span class="cm"># 4 endpoints · /api/v1/tasks</span>
+│   ├── <span class="dir">task_groups/</span>                     <span class="cm"># 5 endpoints · /api/v1/task-groups</span>
+│   └── <span class="dir">subtasks/</span>                        <span class="cm"># 7 endpoints · /api/v1/subtasks</span>
+└── <span class="dir">resources/</span>
+    ├── application.yaml
+    ├── schema.sql                     <span class="cm"># espelho das migrations (execução desativada)</span>
+    └── <span class="dir">db/migration/</span>
+        ├── V1__initial_schema.sql
+        ├── V2__create_refresh_tokens.sql
+        └── V3__backfill_project_owners.sql</code></pre>
+    </section>
+
+    <!-- ===================== EXECUÇÃO ===================== -->
+    <section id="execucao">
+      <h2>Como executar <a class="anchor" href="#execucao">#</a></h2>
+
+      <h3>1. Pré-requisitos</h3>
+      <ul>
+        <li><strong>JDK 25+</strong> (toolchain declarada no <code class="inline">build.gradle</code>)</li>
+        <li><strong>PostgreSQL</strong> em execução</li>
+      </ul>
+
+      <h4>Configuração atual do datasource</h4>
+      <pre><code>spring:
+  application:
+    name: postgres
+  datasource:
+    url: jdbc:postgresql://localhost:5432/if-project
+    username: postgres
+    password: postgres
+  sql:
+    init:
+      mode: never
+  flyway:
+    baseline-on-migrate: true
+
+app:
+  jwt:
+    secret: "${JWT_SECRET:if-project-dev-secret-key-change-me-32b+}"
+    expiration: 24h
+    refresh-expiration: 30d
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000}</code></pre>
+
+      <h3>2. Criar o schema</h3>
+      <div class="callout">
+        <strong>Flyway aplica automaticamente</strong>
+        Com <code class="inline">flyway-database-postgresql</code> no classpath e
+        <code class="inline">spring.sql.init.mode=never</code>, o schema é criado/migrado pelo Flyway
+        no startup. As migrations ficam em <code class="inline">src/main/resources/db/migration</code>.
+      </div>
+      <pre><code># crie o banco uma única vez
+createdb -U postgres if-project
+
+# o Flyway aplica V1, V2, V3 no próximo bootRun</code></pre>
+
+      <h3>3. Subir a aplicação</h3>
+      <pre><code># Windows
+gradlew.bat bootRun
+
+# Linux / macOS
+./gradlew bootRun</code></pre>
+      <p class="muted">Aplicação em <code class="inline">http://localhost:8080</code> · Swagger UI em
+      <code class="inline">http://localhost:8080/swagger-ui/index.html</code>.</p>
+
+      <h3>4. Autenticar e testar</h3>
+      <pre><code># 1) Criar usuário (endpoint público — retorna 201)
+curl -X POST http://localhost:8080/api/v1/users ^
+  -H "Content-Type: application/json" ^
+  -d "{\"username\":\"thiago\",\"email\":\"thiago@ifce.edu.br\",\"password\":\"1234\"}"
+
+# 2) Login — obtenha accessToken + refreshToken
+curl -X POST http://localhost:8080/api/v1/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"thiago@ifce.edu.br\",\"password\":\"1234\"}"
+
+# 3) Chamar endpoint protegido
+curl http://localhost:8080/api/v1/projects ^
+  -H "Authorization: Bearer &lt;accessToken&gt;"
+
+# 4) Renovar tokens
+curl -X POST http://localhost:8080/api/v1/auth/refresh ^
+  -H "Content-Type: application/json" ^
+  -d "{\"refreshToken\":\"&lt;refreshToken&gt;\"}"</code></pre>
+    </section>
+
+    <!-- ===================== AUTENTICAÇÃO ===================== -->
+    <section id="autenticacao">
+      <h2>Autenticação e contexto <a class="anchor" href="#autenticacao">#</a></h2>
+      <p class="lead">A identidade do requisitante é transportada por um <strong>JWT Bearer</strong>
+      (<code class="inline">accessToken</code> de curta duração) + <code class="inline">refreshToken</code>
+      de <strong>uso único</strong>. O antigo header <code class="inline">X-User-Id</code> <strong>não é mais aceito</strong>.</p>
+
+      <table>
+        <thead><tr><th>Item</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><code>Authorization</code></td><td><code>Bearer &lt;accessToken&gt;</code> — obrigatório em endpoints protegidos</td></tr>
+          <tr><td><code>accessToken</code></td><td>JWT HMAC emitido no login; subject = UUID do usuário; expiração configurável (<code>expiresIn</code> em segundos)</td></tr>
+          <tr><td><code>refreshToken</code></td><td>Token opaco (48 bytes Base64URL). Persistido como SHA-256 em <code>refresh_tokens</code>, com <code>expires_at</code> e <code>revoked_at</code>. Uso único</td></tr>
+          <tr><td><code>JWT_SECRET</code></td><td>Variável de ambiente obrigatória em produção (fallback em dev)</td></tr>
+          <tr><td><code>JwtAuthenticationFilter</code></td><td>Lê o header, valida o JWT, popula <code>SecurityContext</code> e vincula <code>UserLogged.USER_ID</code> via <code>ScopedValue</code></td></tr>
+          <tr><td><code>UserLogged.id()</code></td><td>Retorna o <code>UUID</code> corrente; lança <code>UnauthenticatedException</code> (401) se não houver contexto</td></tr>
+          <tr><td>Login legado</td><td><code>POST /api/v1/users/login</code> está <strong>@Deprecated</strong>; novos clientes devem usar <code>POST /api/v1/auth/login</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Respostas para falhas de autenticação</strong>
+        Token ausente → <code class="inline">401 Unauthorized</code> com <code class="inline">"Não autenticado"</code>
+        (via <code class="inline">authenticationEntryPoint</code>). Token inválido/expirado →
+        <code class="inline">401</code> com <code class="inline">"Token inválido ou expirado"</code>
+        (escrito pelo filtro). Sem permissão → <code class="inline">403</code> com
+        <code class="inline">"Você não tem permissão para esta ação"</code>.
+      </div>
+
+      <div class="callout">
+        <strong>Migração MD5 → BCrypt transparente</strong>
+        Senhas novas usam <strong>BCrypt</strong>. Contas antigas gravadas com MD5 (32 hex chars) são
+        aceitas no primeiro login e regravadas automaticamente como BCrypt.
+      </div>
+
+      <pre><code>GET /api/v1/projects
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+Content-Type: application/json</code></pre>
+    </section>
+
+    <hr class="sep">
+
+    <!-- ===================== CONVENÇÕES ===================== -->
+    <section id="convencoes">
+      <h2>Convenções gerais <a class="anchor" href="#convencoes">#</a></h2>
+      <table>
+        <thead><tr><th>Aspecto</th><th>Convenção observada</th></tr></thead>
+        <tbody>
+          <tr><td>Base path</td><td><code>/api/v1</code> em todos os módulos (incluindo <code>tasks</code>)</td></tr>
+          <tr><td>Identificadores</td><td><code>UUID</code> em todos os recursos (incluindo <code>users</code>)</td></tr>
+          <tr><td>Autenticação</td><td><code>Authorization: Bearer &lt;accessToken&gt;</code> (JWT)</td></tr>
+          <tr><td>Paginação</td><td><code>Pageable</code> em listagens de projetos, arquivados e membros (<code>?page=&amp;size=&amp;sort=</code>)</td></tr>
+          <tr><td>Atualizações</td><td>Mistura de <code>PATCH</code> (parcial) e <code>PUT</code> (projetos e tarefas)</td></tr>
+          <tr><td>Status de retorno</td><td><code>200</code> (padrão), <code>201</code> (criação), <code>204</code> (ações sem corpo)</td></tr>
+          <tr><td>Formato de erro</td><td>Formato único <code>{ status, error, message, timestamp, fields }</code></td></tr>
+          <tr><td>Validação</td><td><code>@Validated</code> em interfaces de caso de uso + <code>@Valid</code> nos controllers</td></tr>
+          <tr><td>CORS</td><td>Configurável via <code>CORS_ALLOWED_ORIGINS</code>; dev inclui Vite (5173) e 3000</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===================== AUTH ===================== -->
+    <section id="auth">
+      <h2>Auth <span class="badge info">2 endpoints</span> <a class="anchor" href="#auth">#</a></h2>
+      <p class="lead">Prefixo: <code class="inline">/api/v1/auth</code> · Controller: <code class="inline">AuthController</code> · endpoints públicos</p>
+
+      <table>
+        <thead><tr><th style="width:90px">Método</th><th>Rota</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/auth/login</code></td><td>Autentica e emite par de tokens</td></tr>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/auth/refresh</code></td><td>Renova o par (refresh de uso único)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="endpoint" data-search="post auth login autenticar jwt token">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/auth/login</span>
+          <span class="title">Login</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>email</code> <span class="req">*</span></td><td>string</td><td><code>@Email</code> — “Informe um e-mail válido”</td></tr>
+              <tr><td><code>password</code> <span class="req">*</span></td><td>string</td><td><code>@Password</code> — 4 a 8 caracteres</td></tr>
+            </tbody>
+          </table>
+          <pre><code>POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "ana@example.com",
+  "password": "senha-segura"
+}</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{
+  "id": "b6d09472-9a75-4b02-91f7-e7df2ad293e3",
+  "username": "ana",
+  "email": "ana@example.com",
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 86400,
+  "refreshToken": "fP8Q..."
+}</code></pre>
+          <p class="muted"><code class="inline">expiresIn</code> em segundos (default 24h). Guarde <code class="inline">refreshToken</code> separadamente. Credenciais inválidas → <code class="inline">401</code> com <code class="inline">"E-mail ou senha não conferem."</code></p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="post auth refresh renovar token">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/auth/refresh</span>
+          <span class="title">Renovar tokens</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>refreshToken</code> <span class="req">*</span></td><td>string</td><td><code>@NotBlank</code></td></tr>
+            </tbody>
+          </table>
+          <pre><code>POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "fP8Q..." }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <p>Devolve o mesmo payload do login com um <strong>novo par</strong> de tokens.</p>
+          <p class="muted">O <code class="inline">refreshToken</code> anterior é revogado na mesma transação (<code class="inline">UPDATE ... RETURNING user_id</code>). Token inválido, revogado ou expirado → <code class="inline">401</code> com <code class="inline">"E-mail ou senha não conferem."</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== USERS ===================== -->
+    <section id="users">
+      <h2>Users <span class="badge info">5 endpoints</span> <a class="anchor" href="#users">#</a></h2>
+      <p class="lead">Prefixo: <code class="inline">/api/v1/users</code> · Controller: <code class="inline">UserController</code>.
+      Inclui o login legado (deprecated). Todos os IDs são <strong>UUID</strong>.</p>
+
+      <table>
+        <thead><tr><th style="width:90px">Método</th><th>Rota</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/users</code></td><td>Cria usuário · 201</td></tr>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/users/login</code></td><td>Login legado · <span class="badge warn">@Deprecated</span></td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/users/{user_id}</code></td><td>Atualiza username e e-mail</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/users/{user_id}/password</code></td><td>Troca a senha</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/users/{user_id}/active</code></td><td>Ativa a conta</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Autorização nos PATCH</strong>
+        Os três PATCH exigem que <code class="inline">UserLogged.id() == {user_id}</code>. Caso contrário
+        devolvem <code class="inline">403</code> com <code class="inline">"Você não tem permissão para alterar este usuário"</code>.
+      </div>
+
+      <div class="endpoint" data-search="post users criar usuario">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/users</span>
+          <span class="title">Criar usuário</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>username</code> <span class="req">*</span></td><td>string</td><td><code>@Username</code> → 3 a 10 caracteres · “O nome de usuário deve ter entre 3 e 10 caracteres”</td></tr>
+              <tr><td><code>email</code> <span class="req">*</span></td><td>string</td><td><code>@Email</code> · “Informe um e-mail válido”</td></tr>
+              <tr><td><code>password</code> <span class="req">*</span></td><td>string</td><td><code>@Password</code> → 4 a 8 caracteres · “A senha deve ter entre 4 e 8 caracteres”</td></tr>
+            </tbody>
+          </table>
+          <pre><code>POST /api/v1/users
+Content-Type: application/json
+
+{
+  "username": "thiago",
+  "email": "thiago@ifce.edu.br",
+  "password": "1234"
+}</code></pre>
+          <h4>Response <span class="badge ok">201</span></h4>
+          <pre><code>{ "id": "0192f3c4-1234-7abc-8def-0123456789ab" }</code></pre>
+          <p class="muted">Senha persistida como <strong>BCrypt</strong>. E-mail duplicado → <code class="inline">409</code> com <code class="inline">"Este e-mail já está em uso"</code>.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="post users login legado">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/users/login</span>
+          <span class="title">Login legado</span>
+        </header>
+        <div class="body">
+          <div class="callout warn">
+            <strong>@Deprecated</strong>
+            Compatível com <code class="inline">POST /api/v1/auth/login</code> (mesmo payload e mesmo retorno).
+            Novos clientes devem usar <a href="#auth"><code class="inline">/api/v1/auth/login</code></a>.
+          </div>
+          <pre><code>POST /api/v1/users/login
+Content-Type: application/json
+
+{ "email": "ana@example.com", "password": "senha-segura" }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{
+  "id": "b6d09472-...",
+  "username": "ana",
+  "email": "ana@example.com",
+  "accessToken": "eyJ...",
+  "tokenType": "Bearer",
+  "expiresIn": 86400,
+  "refreshToken": "fP8Q..."
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch users atualizar email username">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/users/{user_id}</span>
+          <span class="title">Atualizar usuário</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>user_id</code> <span class="req">*</span></td><td>UUID (path)</td><td>Precisa ser o usuário autenticado</td></tr>
+              <tr><td><code>username</code> <span class="req">*</span></td><td>string</td><td>3 a 10 caracteres</td></tr>
+              <tr><td><code>email</code> <span class="req">*</span></td><td>string</td><td>E-mail válido</td></tr>
+            </tbody>
+          </table>
+          <pre><code>PATCH /api/v1/users/{user_id}
+Authorization: Bearer &lt;accessToken&gt;
+Content-Type: application/json
+
+{ "username": "thiago.dev", "email": "thiago.dev@ifce.edu.br" }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{ "id": "0192f3c4-..." }</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch users senha password">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/users/{user_id}/password</span>
+          <span class="title">Alterar senha</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>oldPassword</code> <span class="req">*</span></td><td>string</td><td>4 a 8 caracteres</td></tr>
+              <tr><td><code>newPassword</code> <span class="req">*</span></td><td>string</td><td>4 a 8 caracteres</td></tr>
+            </tbody>
+          </table>
+          <pre><code>PATCH /api/v1/users/{user_id}/password
+Authorization: Bearer &lt;accessToken&gt;
+
+{ "oldPassword": "1234", "newPassword": "5678" }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{ "id": "0192f3c4-..." }</code></pre>
+          <p class="muted">Senha atual inválida → <code class="inline">400</code> com <code class="inline">"A senha atual não confere"</code>. Nova senha persistida como BCrypt.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch users ativar active">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/users/{user_id}/active</span>
+          <span class="title">Ativar conta</span>
+        </header>
+        <div class="body">
+          <p>Sem corpo. Define <code class="inline">is_active = true</code>.</p>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{ "id": "0192f3c4-..." }</code></pre>
+          <p class="muted">Usuário inexistente → <code class="inline">404</code> com <code class="inline">"Usuário não encontrado"</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROJECTS ===================== -->
+    <section id="projects">
+      <h2>Projects <span class="badge info">13 endpoints</span> <a class="anchor" href="#projects">#</a></h2>
+      <p class="lead">Prefixo: <code class="inline">/api/v1/projects</code> · Controller: <code class="inline">ProjectController</code> ·
+      todos os endpoints usam <code class="inline">UserLogged.id()</code> internamente</p>
+
+      <table>
+        <thead><tr><th style="width:90px">Método</th><th>Rota</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/projects</code></td><td>Cria projeto (owner = usuário logado, também membro OWNER)</td></tr>
+          <tr><td><span class="method m-put">PUT</span></td><td><code>/api/v1/projects/{id}</code></td><td>Renomeia projeto</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td><code>/api/v1/projects</code></td><td>Lista projetos do usuário (paginado)</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td><code>/api/v1/projects/{id}</code></td><td>Detalha projeto + papel do usuário</td></tr>
+          <tr><td><span class="method m-delete">DELETE</span></td><td><code>/api/v1/projects/{id}</code></td><td>Exclui projeto</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/projects/{id}/archive</code></td><td>Arquiva projeto (cascata)</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/projects/{id}/restore</code></td><td>Restaura projeto (cascata)</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td><code>/api/v1/projects/archived</code></td><td>Lista projetos arquivados do usuário (paginado)</td></tr>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/projects/{id}/members</code></td><td>Adiciona membro</td></tr>
+          <tr><td><span class="method m-delete">DELETE</span></td><td><code>/api/v1/projects/{id}/members/{userId}</code></td><td>Remove membro</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td><code>/api/v1/projects/{id}/members</code></td><td>Lista membros (paginado)</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/projects/{id}/members/{userId}</code></td><td>Altera papel do membro</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/projects/{id}/transfer</code></td><td>Transfere propriedade</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Papéis (<code class="inline">ProjectRole</code>)</h3>
+      <table>
+        <thead><tr><th>Valor</th><th>Pode editar</th><th>Observação</th></tr></thead>
+        <tbody>
+          <tr><td><code>OWNER</code></td><td>sim</td><td>Único que transfere propriedade</td></tr>
+          <tr><td><code>ADMIN</code></td><td>sim</td><td>Gerencia membros, arquiva projeto</td></tr>
+          <tr><td><code>MEMBER</code></td><td>não</td><td>Papel padrão no banco</td></tr>
+          <tr><td><code>VIEWER</code></td><td>não</td><td>Somente leitura</td></tr>
+        </tbody>
+      </table>
+      <p class="muted"><code class="inline">FindProjectSQL</code> força <code class="inline">role = OWNER</code> quando <code class="inline">owner_id == userId</code> — mesmo que o registro em <code class="inline">project_members</code> esteja ausente.</p>
+
+      <div class="endpoint" data-search="post projects criar projeto">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/projects</span>
+          <span class="title">Criar projeto</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>name</code> <span class="req">*</span></td><td>string</td><td><code>@ProjectName</code> → 3 a 100 caracteres</td></tr>
+            </tbody>
+          </table>
+          <pre><code>POST /api/v1/projects
+Authorization: Bearer &lt;accessToken&gt;
+Content-Type: application/json
+
+{ "name": "Projeto Integrador" }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{ "id": "b7c1e6a2-5d34-7f10-9c88-2f4a9b0d7e11" }</code></pre>
+          <p class="muted">O owner vem de <code class="inline">UserLogged.id()</code> e <strong>também é inserido em <code class="inline">project_members</code> como <code class="inline">OWNER</code></strong> na mesma transação.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="get projects listar detalhar projeto">
+        <header>
+          <span class="method m-get">GET</span>
+          <span class="path">/api/v1/projects</span>
+          <span class="title">Listar e detalhar</span>
+        </header>
+        <div class="body">
+          <pre><code>GET /api/v1/projects?page=0&amp;size=20
+Authorization: Bearer &lt;accessToken&gt;</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>[
+  {
+    "id": "b7c1e6a2-5d34-7f10-9c88-2f4a9b0d7e11",
+    "name": "Projeto Integrador",
+    "ownerId": "0192f3c4-1234-7abc-8def-0123456789ab",
+    "createdAt": "2026-10-27T14:05:31"
+  }
+]</code></pre>
+          <h4>Detalhe <code class="inline">GET /api/v1/projects/{id}</code></h4>
+          <pre><code>{
+  "projectId": "b7c1e6a2-5d34-7f10-9c88-2f4a9b0d7e11",
+  "name": "Projeto Integrador",
+  "ownerId": "0192f3c4-1234-7abc-8def-0123456789ab",
+  "role": "OWNER",
+  "createdAt": "2026-10-27T14:05:31",
+  "archivedAt": null
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch projects arquivar restaurar archive restore">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/projects/{id}/archive | /restore</span>
+          <span class="title">Arquivar / restaurar</span>
+        </header>
+        <div class="body">
+          <p>Requer papel <code class="inline">OWNER</code> ou <code class="inline">ADMIN</code>.
+          Cascata em <strong>boards → task_groups → tasks</strong>, cada uma com <code class="inline">is_archived</code> atualizado na mesma transação.</p>
+          <pre><code>PATCH /api/v1/projects/{id}/archive
+Authorization: Bearer &lt;accessToken&gt;
+
+→ 200 { "id": "...", "archivedAt": "2026-10-27T14:10:00" }
+
+PATCH /api/v1/projects/{id}/restore
+Authorization: Bearer &lt;accessToken&gt;
+
+→ 200 { "id": "..." }</code></pre>
+          <p class="muted">Projeto já arquivado → <code class="inline">409 "Este projeto já está arquivado"</code>.
+          Não arquivado ao restaurar → <code class="inline">409 "Este projeto não está arquivado"</code>.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="get projects arquivados archived">
+        <header>
+          <span class="method m-get">GET</span>
+          <span class="path">/api/v1/projects/archived</span>
+          <span class="title">Listar arquivados</span>
+        </header>
+        <div class="body">
+          <pre><code>GET /api/v1/projects/archived?page=0&amp;size=20
+Authorization: Bearer &lt;accessToken&gt;</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>[
+  {
+    "id": "b7c1e6a2-...",
+    "name": "Projeto Integrador",
+    "archivedAt": "2026-10-27T14:10:00"
+  }
+]</code></pre>
+          <p class="muted">O usuário é obtido de <code class="inline">UserLogged.id()</code> — não há mais <code class="inline">?userId=</code>.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="post delete get projects membros members papel role">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/projects/{id}/members</span>
+          <span class="title">Gerenciar membros</span>
+        </header>
+        <div class="body">
+          <h4>Adicionar membro</h4>
+          <pre><code>POST /api/v1/projects/{id}/members
+Authorization: Bearer &lt;accessToken&gt;
+
+{ "userId": "c1a2...", "role": "MEMBER" }
+
+→ 200 { "projectId": "...", "userId": "c1a2..." }</code></pre>
+          <p class="muted">Exige <code class="inline">OWNER</code>/<code class="inline">ADMIN</code>; <code class="inline">409 "Este membro já está no projeto"</code> se duplicado.</p>
+
+          <h4>Alterar papel</h4>
+          <pre><code>PATCH /api/v1/projects/{id}/members/{userId}
+{ "role": "ADMIN" }
+
+→ 200 { "projectId": "...", "userId": "..." }</code></pre>
+
+          <h4>Remover / listar</h4>
+          <pre><code>DELETE /api/v1/projects/{id}/members/{userId}
+→ 200 { "projectId": "...", "userId": "..." }
+
+GET /api/v1/projects/{id}/members?page=0&amp;size=20
+→ 200 [{ "userId": "...", "username": "...", "email": "...", "role": "MEMBER", "joinedAt": "..." }]</code></pre>
+          <p class="muted">Remover o owner → <code class="inline">422 "Não é possível remover o dono do projeto"</code>. Membro inexistente → <code class="inline">404 "Membro não encontrado neste projeto"</code>.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch projects transferir propriedade transfer ownership">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/projects/{id}/transfer</span>
+          <span class="title">Transferir propriedade</span>
+        </header>
+        <div class="body">
+          <pre><code>{ "newOwnerId": "c1a2b3c4-0000-7000-8000-000000000002" }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{ "projectId": "...", "newOwnerId": "c1a2b3c4-..." }</code></pre>
+          <p class="muted">Somente o <code class="inline">OWNER</code> atual pode transferir. Se <code class="inline">newOwnerId == usuário logado</code>, é no-op (retorna o mesmo). Se o destino não é membro → <code class="inline">422 "Só é possível transferir o projeto para um membro"</code>. O novo owner recebe <code class="inline">ADMIN</code> em <code class="inline">project_members</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== BOARDS ===================== -->
+    <section id="boards">
+      <h2>Boards <span class="badge info">6 endpoints</span> <a class="anchor" href="#boards">#</a></h2>
+      <p class="lead">Prefixo: <code class="inline">/api/v1/boards</code> · Controller: <code class="inline">BoardController</code></p>
+
+      <table>
+        <thead><tr><th style="width:90px">Método</th><th>Rota</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/boards</code></td><td>Cria quadro</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td><code>/api/v1/boards/{id}</code></td><td>Detalha quadro</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/boards/{id}</code></td><td>Atualiza nome/cor</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td><code>/api/v1/boards/project/{projectId}</code></td><td>Lista quadros do projeto</td></tr>
+          <tr><td><span class="method m-delete">DELETE</span></td><td><code>/api/v1/boards/{id}</code></td><td>Exclui quadro · <strong>Bearer</strong> · 204</td></tr>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/boards/{id}/duplicate</code></td><td>Duplica quadro · <strong>Bearer</strong> · 201</td></tr>
+        </tbody>
+      </table>
+
+      <div class="endpoint" data-search="post boards criar quadro">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/boards</span>
+          <span class="title">Criar quadro</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>name</code> <span class="req">*</span></td><td>string</td><td><code>@NotBlank</code> + <code>@Size(3..30)</code></td></tr>
+              <tr><td><code>projectId</code> <span class="req">*</span></td><td>UUID</td><td><code>@NotNull</code></td></tr>
+            </tbody>
+          </table>
+          <pre><code>{ "name": "Sprint 1", "projectId": "b7c1e6a2-5d34-7f10-9c88-2f4a9b0d7e11" }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{ "id": "d4e5f6a7-..." }</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="get patch boards detalhar atualizar cor color">
+        <header>
+          <span class="method m-get">GET</span>
+          <span class="path">/api/v1/boards/{id}</span>
+          <span class="title">Ler / atualizar</span>
+        </header>
+        <div class="body">
+          <pre><code>GET /api/v1/boards/{id}
+
+{
+  "name": "Sprint 1",
+  "projectId": "b7c1e6a2-...",
+  "hexColor": "#ebecf0",
+  "isArchived": false
+}</code></pre>
+          <h4>Atualizar <span class="badge ok">200</span></h4>
+          <pre><code>PATCH /api/v1/boards/{id}
+{ "name": "Sprint 2", "color": "#61bd4f" }
+
+→ { "id": "d4e5f6a7-..." }</code></pre>
+          <p class="muted">Ambos os campos são opcionais (<code class="inline">COALESCE</code> no SQL).</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="delete duplicate boards excluir duplicar">
+        <header>
+          <span class="method m-delete">DELETE</span>
+          <span class="path">/api/v1/boards/{id}</span>
+          <span class="title">Excluir / duplicar</span>
+        </header>
+        <div class="body">
+          <pre><code>DELETE /api/v1/boards/{id}
+Authorization: Bearer &lt;accessToken&gt;
+→ 204 No Content</code></pre>
+          <p class="muted">Autorização via <code class="inline">isUserAuthorizedToDelete</code>: o usuário precisa ser
+          <code class="inline">owner_id</code> do projeto ou <code class="inline">ADMIN</code> em
+          <code class="inline">project_members</code>. Sem permissão → <code class="inline">403</code>
+          com <code class="inline">"Você não tem permissão para excluir este quadro"</code>.</p>
+
+          <h4>Duplicar <span class="badge ok">201</span></h4>
+          <pre><code>POST /api/v1/boards/{id}/duplicate
+Authorization: Bearer &lt;accessToken&gt;
+
+{ "newBoardName": "Cópia do Sprint 1" }
+
+→ 201 { "newBoardId": "e9f0a1b2-..." }</code></pre>
+          <p class="muted">Copia o quadro e recria os <code class="inline">task_groups</code> (as tarefas não são copiadas).
+          Quadro original inexistente → <code class="inline">404 "Quadro não encontrado"</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TASKS ===================== -->
+    <section id="tasks">
+      <h2>Tasks <span class="badge info">4 endpoints</span> <a class="anchor" href="#tasks">#</a></h2>
+      <p class="lead">Prefixo: <code class="inline">/api/v1/tasks</code> · Controller: <code class="inline">TaskController</code> ·
+      implementação via <strong>Spring Data JDBC</strong> sobre a entidade <code class="inline">Task</code></p>
+
+      <table>
+        <thead><tr><th style="width:90px">Método</th><th>Rota</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/tasks</code></td><td>Cria tarefa · 201 sem corpo</td></tr>
+          <tr><td><span class="method m-put">PUT</span></td><td><code>/api/v1/tasks/{id}</code></td><td>Atualiza título/descrição</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/tasks/{id}/activate</code></td><td>Desarquiva · 204</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/tasks/{id}/archived</code></td><td>Arquiva · 204</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Endpoint de teste removido</strong>
+        O antigo <code class="inline">GET /task/test</code> <strong>não existe mais</strong>.
+      </div>
+
+      <div class="endpoint" data-search="post tasks criar tarefa">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/tasks</span>
+          <span class="title">Criar tarefa</span>
+        </header>
+        <div class="body">
+          <p>O corpo é a própria entidade <code class="inline">Task</code> (sem DTO de entrada).</p>
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Observação</th></tr></thead>
+            <tbody>
+              <tr><td><code>taskGroupId</code></td><td>UUID</td><td>Coluna (<code>task_groups</code>)</td></tr>
+              <tr><td><code>creatorId</code> / <code>assigneeId</code></td><td>UUID</td><td>Usuários</td></tr>
+              <tr><td><code>title</code></td><td>string</td><td>Obrigatório no banco (VARCHAR 200)</td></tr>
+              <tr><td><code>description</code></td><td>string</td><td>Opcional</td></tr>
+              <tr><td><code>priority</code></td><td>string</td><td><code>LOW</code> | <code>MEDIUM</code> | <code>HIGH</code> (CHECK no banco)</td></tr>
+              <tr><td><code>position</code></td><td>integer</td><td>Ordenação dentro da coluna</td></tr>
+              <tr><td><code>dueDate</code></td><td>datetime</td><td>Opcional</td></tr>
+            </tbody>
+          </table>
+          <pre><code>POST /api/v1/tasks
+Authorization: Bearer &lt;accessToken&gt;
+
+{
+  "taskGroupId": "a1b2c3d4-...",
+  "creatorId": "0192f3c4-...",
+  "assigneeId": "c1a2b3c4-...",
+  "title": "Implementar login",
+  "description": "Fluxo completo de autenticação",
+  "priority": "HIGH",
+  "position": 0,
+  "dueDate": "2026-11-10T23:59:00"
+}</code></pre>
+          <h4>Response <span class="badge ok">201</span></h4>
+          <p class="muted">Sem corpo. <code class="inline">id</code>, <code class="inline">isArchived=false</code> e
+          <code class="inline">createdAt</code> são gerados no caso de uso.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="put patch tasks atualizar arquivar ativar">
+        <header>
+          <span class="method m-put">PUT</span>
+          <span class="path">/api/v1/tasks/{id}</span>
+          <span class="title">Atualizar / arquivar</span>
+        </header>
+        <div class="body">
+          <pre><code>PUT /api/v1/tasks/{id}
+{ "title": "Implementar login social", "description": "Google + GitHub" }
+
+→ 200 {
+  "id": "f1a2...",
+  "title": "Implementar login social",
+  "description": "Google + GitHub",
+  "isAchived": false
+}</code></pre>
+          <p class="muted">O campo <code class="inline">isAchived</code> (grafia preservada do código) reflete o estado de arquivamento.</p>
+          <h4>Arquivar / desarquivar</h4>
+          <pre><code>PATCH /api/v1/tasks/{id}/archived  → 204
+PATCH /api/v1/tasks/{id}/activate  → 204</code></pre>
+          <p class="muted">Campos <code class="inline">null</code> no <code class="inline">PUT</code> não são
+          sobrescritos. Tarefa inexistente → <code class="inline">404 "Tarefa não encontrada"</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TASK GROUPS ===================== -->
+    <section id="task_groups">
+      <h2>Task groups <span class="badge info">5 endpoints</span> <a class="anchor" href="#task_groups">#</a></h2>
+      <p class="lead">Prefixo: <code class="inline">/api/v1/task-groups</code> · Controller: <code class="inline">TaskGroupController</code></p>
+
+      <table>
+        <thead><tr><th style="width:90px">Método</th><th>Rota</th><th>Descrição</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/task-groups</code></td><td>Cria coluna</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/task-groups/{task_group_id}/rename</code></td><td>Renomeia coluna</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/task-groups/{task_group_id}/move</code></td><td>Move/reordena coluna</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/task-groups/{task_group_id}/archive</code></td><td>Arquiva coluna</td></tr>
+          <tr><td><span class="method m-delete">DELETE</span></td><td><code>/api/v1/task-groups/{task_group_id}</code></td><td>Exclui coluna (retorna <code>{id}</code>)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="endpoint" data-search="post task-groups criar coluna">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/task-groups</span>
+          <span class="title">Criar coluna</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>name</code> <span class="req">*</span></td><td>string</td><td><code>@NotBlank</code> + <code>@Size(max=50)</code></td></tr>
+              <tr><td><code>position</code> <span class="req">*</span></td><td>Long</td><td><code>@NotNull</code></td></tr>
+              <tr><td><code>boardId</code> <span class="req">*</span></td><td>UUID</td><td><code>@NotNull</code></td></tr>
+            </tbody>
+          </table>
+          <pre><code>{ "name": "A Fazer", "position": 0, "boardId": "d4e5f6a7-..." }</code></pre>
+          <h4>Response <span class="badge ok">200</span></h4>
+          <pre><code>{ "id": "a1b2c3d4-..." }</code></pre>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch delete task-groups mover renomear arquivar">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/task-groups/{task_group_id}/...</span>
+          <span class="title">Renomear / mover / arquivar / excluir</span>
+        </header>
+        <div class="body">
+          <pre><code>PATCH /api/v1/task-groups/{id}/rename
+{ "name": "Em Andamento" }            → { "id": "..." }
+
+PATCH /api/v1/task-groups/{id}/move
+{ "newPosition": 2, "boardId": "d4e5f6a7-..." } → { "id": "..." }
+
+PATCH /api/v1/task-groups/{id}/archive → { "id": "..." }
+DELETE /api/v1/task-groups/{id}        → { "id": "..." }</code></pre>
+          <p class="muted">O <em>move</em> reindexa as posições das demais colunas do quadro
+          (<code class="inline">incrementPositions</code> / <code class="inline">decrementPositions</code>) na mesma transação.
+          Coluna inexistente → <code class="inline">404 "Coluna não encontrada"</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SUBTASKS ===================== -->
+    <section id="subtasks">
+      <h2>Subtasks <span class="badge info">7 endpoints</span> <a class="anchor" href="#subtasks">#</a></h2>
+      <p class="lead">Prefixo: <code class="inline">/api/v1/subtasks</code> · contrato unificado em <code class="inline">SubtaskController</code>.
+      A listagem agora retorna <strong>sempre uma lista JSON</strong>, inclusive vazia.</p>
+
+      <table>
+        <thead><tr><th style="width:90px">Método</th><th>Rota</th><th>Retorno</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/subtasks</code></td><td>201 · <code>{ id }</code></td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td><code>/api/v1/subtasks/task-groups/{taskId}</code></td><td>200 · <code>[SubtaskResponse]</code></td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/subtasks/{subtaskId}/description</code></td><td>204</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/subtasks/{subtaskId}/completion</code></td><td>204</td></tr>
+          <tr><td><span class="method m-delete">DELETE</span></td><td><code>/api/v1/subtasks/{subtaskId}</code></td><td>204</td></tr>
+          <tr><td><span class="method m-patch">PATCH</span></td><td><code>/api/v1/subtasks/{subtask_id}/toggle</code></td><td>200 · <code>{ id, isCompleted }</code></td></tr>
+          <tr><td><span class="method m-post">POST</span></td><td><code>/api/v1/subtasks/conversion</code></td><td>204</td></tr>
+        </tbody>
+      </table>
+
+      <div class="endpoint" data-search="post get subtasks subtarefa criar listar">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/subtasks</span>
+          <span class="title">Criar / listar</span>
+        </header>
+        <div class="body">
+          <h4>Criar <span class="badge ok">201</span></h4>
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>taskId</code> <span class="req">*</span></td><td>UUID</td><td>Tarefa-mãe (<code>@NotNull</code>)</td></tr>
+              <tr><td><code>description</code> <span class="req">*</span></td><td>string</td><td><code>@NotBlank</code></td></tr>
+              <tr><td><code>position</code> <span class="req">*</span></td><td>Integer</td><td><code>@NotNull</code> + <code>@Min(0)</code></td></tr>
+            </tbody>
+          </table>
+          <pre><code>POST /api/v1/subtasks
+Content-Type: application/json
+
+{
+  "taskId": "dc5fd837-2e7c-47b5-afb1-c9e1fba02ec6",
+  "description": "Revisar integração",
+  "position": 0
+}</code></pre>
+          <h4>Response <span class="badge ok">201</span></h4>
+          <pre><code>{ "id": "a9b8c7d6-..." }</code></pre>
+
+          <h4>Listar</h4>
+          <pre><code>GET /api/v1/subtasks/task-groups/{taskId}
+→ 200 []
+→ 200 [{
+  "id": "a9b8...",
+  "taskId": "dc5f...",
+  "description": "Revisar integração",
+  "position": 0,
+  "completed": false,
+  "createdAt": "2026-11-22T14:00:00Z"
+}]</code></pre>
+          <p class="muted">A resposta é <strong>sempre uma lista JSON</strong>, inclusive vazia. Ordenada por <code class="inline">position</code>, depois <code class="inline">created_at</code>.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch subtasks description completion">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/subtasks/{subtaskId}/description | /completion</span>
+          <span class="title">Atualizar texto / conclusão</span>
+        </header>
+        <div class="body">
+          <h4>Descrição <span class="badge ok">204</span></h4>
+          <pre><code>PATCH /api/v1/subtasks/{subtaskId}/description
+Content-Type: application/json
+
+{ "description": "Descrição atualizada" }</code></pre>
+          <h4>Conclusão <span class="badge ok">204</span></h4>
+          <pre><code>PATCH /api/v1/subtasks/{subtaskId}/completion
+Content-Type: application/json
+
+{ "completed": true }</code></pre>
+          <p class="muted">Subtarefa inexistente → <code class="inline">404 "Subtarefa não encontrada"</code> (a checagem é por <code class="inline">update == 0</code>).</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="patch subtasks toggle">
+        <header>
+          <span class="method m-patch">PATCH</span>
+          <span class="path">/api/v1/subtasks/{subtask_id}/toggle</span>
+          <span class="title">Toggle</span>
+        </header>
+        <div class="body">
+          <pre><code>PATCH /api/v1/subtasks/{subtask_id}/toggle
+→ 200 { "id": "a9b8c7d6-...", "isCompleted": true }</code></pre>
+          <p class="muted">Inverte <code class="inline">is_completed</code> via <code class="inline">UPDATE ... RETURNING</code>. Subtarefa inexistente → <code class="inline">404</code>.</p>
+        </div>
+      </div>
+
+      <div class="endpoint" data-search="post subtasks conversion converter tarefa">
+        <header>
+          <span class="method m-post">POST</span>
+          <span class="path">/api/v1/subtasks/conversion</span>
+          <span class="title">Converter em tarefa</span>
+        </header>
+        <div class="body">
+          <table>
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Regras</th></tr></thead>
+            <tbody>
+              <tr><td><code>subtaskId</code> <span class="req">*</span></td><td>UUID</td><td><code>@NotNull</code></td></tr>
+              <tr><td><code>title</code> <span class="req">*</span></td><td>string</td><td><code>@NotBlank</code></td></tr>
+              <tr><td><code>description</code> <span class="req">*</span></td><td>string</td><td><code>@NotBlank</code></td></tr>
+              <tr><td><code>priority</code> <span class="req">*</span></td><td>enum</td><td><code>HIGH</code> | <code>MEDIUM</code> | <code>LOW</code></td></tr>
+              <tr><td><code>dueDate</code></td><td>OffsetDateTime</td><td><code>@FutureOrPresent</code> (opcional)</td></tr>
+            </tbody>
+          </table>
+          <pre><code>POST /api/v1/subtasks/conversion
+Content-Type: application/json
+
+{
+  "subtaskId": "dc5fd837-2e7c-47b5-afb1-c9e1fba02ec6",
+  "title": "Nova tarefa",
+  "description": "Detalhes da tarefa",
+  "priority": "MEDIUM",
+  "dueDate": "2026-12-10T17:00:00-03:00"
+}</code></pre>
+          <h4>Response <span class="badge ok">204</span></h4>
+          <p class="muted">Regras aplicadas (transação única):
+          (1) subtarefa precisa existir → <code class="inline">404 "Subtarefa não encontrada"</code>;
+          (2) não pode estar concluída → <code class="inline">422 "Não é possível converter uma subtarefa já concluída"</code>;
+          (3) herda <code class="inline">task_group_id</code>, <code class="inline">creator_id</code> e
+          <code class="inline">assignee_id</code> da tarefa-mãe;
+          (4) é inserida no fim da coluna;
+          (5) a subtarefa original é removida;
+          (6) subtarefas restantes da mesma tarefa-mãe são reindexadas (<code class="inline">position - 1</code>).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ERROS ===================== -->
+    <section id="erros">
+      <h2>Erros e validação <a class="anchor" href="#erros">#</a></h2>
+
+      <h3>Formato único de erro</h3>
+      <pre><code>{
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Dados inválidos",
+  "timestamp": "2026-11-22T20:00:00Z",
+  "fields": { "email": "Informe um e-mail válido" }
+}</code></pre>
+      <p class="muted"><code class="inline">fields</code> aparece quando há erros de validação por campo.
+      Respostas geradas fora do MVC (filtros de autenticação) escrevem o mesmo envelope com <code class="inline">fields: {}</code>.</p>
+
+      <h3>Exceções de negócio (<code class="inline">ApiException</code>)</h3>
+      <table>
+        <thead><tr><th>Exceção</th><th>Status</th><th>Mensagem</th></tr></thead>
+        <tbody>
+          <tr><td><code>UnauthenticatedException</code></td><td><span class="badge err">401</span></td><td>Usuário não autenticado</td></tr>
+          <tr><td><code>InvalidCredentialsException</code></td><td><span class="badge err">401</span></td><td>E-mail ou senha não conferem.</td></tr>
+          <tr><td><code>InsufficientPermissionException</code></td><td><span class="badge warn">403</span></td><td>Você não tem permissão para realizar esta ação</td></tr>
+          <tr><td><code>BoardUnauthorizedException</code></td><td><span class="badge warn">403</span></td><td>Você não tem permissão para excluir este quadro</td></tr>
+          <tr><td><code>ProjectNotFoundException</code></td><td><span class="badge err">404</span></td><td>Projeto não encontrado</td></tr>
+          <tr><td><code>MemberNotFoundException</code></td><td><span class="badge err">404</span></td><td>Membro não encontrado neste projeto</td></tr>
+          <tr><td><code>BoardNotFoundException</code></td><td><span class="badge err">404</span></td><td>Quadro não encontrado</td></tr>
+          <tr><td><code>TaskNotFoundException</code></td><td><span class="badge err">404</span></td><td>Tarefa não encontrada</td></tr>
+          <tr><td><code>ColumnNotFoundException</code></td><td><span class="badge err">404</span></td><td>Coluna não encontrada</td></tr>
+          <tr><td><code>UserNotFoundException</code></td><td><span class="badge err">404</span></td><td>Usuário não encontrado</td></tr>
+          <tr><td><code>ResourceNotFoundException</code></td><td><span class="badge err">404</span></td><td>Subtarefa não encontrada</td></tr>
+          <tr><td><code>ProjectAlreadyArchivedException</code></td><td><span class="badge warn">409</span></td><td>Este projeto já está arquivado</td></tr>
+          <tr><td><code>ProjectNotArchivedException</code></td><td><span class="badge warn">409</span></td><td>Este projeto não está arquivado</td></tr>
+          <tr><td><code>MemberAlreadyExistsException</code></td><td><span class="badge warn">409</span></td><td>Este membro já está no projeto</td></tr>
+          <tr><td><code>EmailAlreadyExistsException</code></td><td><span class="badge warn">409</span></td><td>Este e-mail já está em uso</td></tr>
+          <tr><td><code>CannotRemoveOwnerException</code></td><td><span class="badge warn">422</span></td><td>Não é possível remover o dono do projeto</td></tr>
+          <tr><td><code>CannotTransferToNonMemberException</code></td><td><span class="badge warn">422</span></td><td>Só é possível transferir o projeto para um membro</td></tr>
+          <tr><td><code>BusinessRuleException</code></td><td><span class="badge warn">422</span></td><td>Não é possível converter uma subtarefa já concluída</td></tr>
+          <tr><td><code>InvalidCurrentPasswordException</code></td><td><span class="badge warn">400</span></td><td>A senha atual não confere</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Tratamento global (<code class="inline">ApiExceptionHandler</code>)</h3>
+      <table>
+        <thead><tr><th>Situação</th><th>Status</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><code>MethodArgumentNotValidException</code> / <code>HandlerMethodValidationException</code> / <code>ConstraintViolationException</code></td><td><span class="badge warn">400</span></td><td><code>message = "Dados inválidos"</code> + <code>fields</code></td></tr>
+          <tr><td><code>HttpMessageNotReadableException</code> (JSON ou enum inválido)</td><td><span class="badge warn">400</span></td><td><code>"Valor inválido para {campo}"</code> ou <code>"JSON inválido. Verifique os campos enviados."</code></td></tr>
+          <tr><td><code>MissingServletRequestParameterException</code> / <code>MethodArgumentTypeMismatchException</code></td><td><span class="badge warn">400</span></td><td>Parâmetro obrigatório ou formato inválido</td></tr>
+          <tr><td><code>HttpRequestMethodNotSupportedException</code></td><td><span class="badge warn">405</span></td><td>“Método HTTP não permitido”</td></tr>
+          <tr><td><code>NoResourceFoundException</code> / <code>EmptyResultDataAccessException</code></td><td><span class="badge err">404</span></td><td>“Recurso não encontrado”</td></tr>
+          <tr><td><code>DataIntegrityViolationException</code></td><td><span class="badge warn">409</span></td><td>“Não foi possível salvar. Registro duplicado ou referência inválida.”</td></tr>
+          <tr><td><code>Exception</code> genérica</td><td><span class="badge err">500</span></td><td>“Erro interno. Tente novamente.”</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Validações declarativas</h3>
+      <table>
+        <thead><tr><th>Anotação</th><th>Regra</th><th>Aplicada em</th></tr></thead>
+        <tbody>
+          <tr><td><code>@Username</code></td><td><code>@Size(3..10)</code></td><td><code>Users</code></td></tr>
+          <tr><td><code>@Password</code></td><td><code>@Size(4..8)</code></td><td><code>Users</code>, <code>Auth</code></td></tr>
+          <tr><td><code>@Email</code></td><td>formato de e-mail</td><td><code>Users</code>, <code>Auth</code></td></tr>
+          <tr><td><code>@ProjectName</code></td><td><code>@Size(3..100)</code></td><td><code>Projects</code></td></tr>
+          <tr><td><code>@NotBlank</code> + <code>@Size(3..30)</code></td><td>nome do quadro</td><td><code>Boards</code></td></tr>
+          <tr><td><code>@NotBlank</code> + <code>@Size(max=50)</code></td><td>nome da coluna</td><td><code>Task groups</code></td></tr>
+          <tr><td><code>@NotNull</code> / <code>@NotBlank</code> / <code>@FutureOrPresent</code> / <code>@Min(0)</code></td><td>criação e conversão de subtarefa</td><td><code>Subtasks</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="sep">
+
+    <!-- ===================== MODELO ===================== -->
+    <section id="modelo">
+      <h2>Modelo de dados <a class="anchor" href="#modelo">#</a></h2>
+      <p class="lead">8 tabelas em PostgreSQL, criadas via Flyway (migration <code class="inline">V1</code>).
+      Todas usam <code class="inline">UUID</code> com <code class="inline">DEFAULT gen_random_uuid()</code>
+      (extensão <code class="inline">pgcrypto</code>).</p>
+
+      <table>
+        <thead><tr><th>Tabela</th><th>Função</th><th>Relacionamentos</th></tr></thead>
+        <tbody>
+          <tr><td><code>users</code></td><td>Contas de usuário</td><td>—</td></tr>
+          <tr><td><code>refresh_tokens</code></td><td>Tokens de refresh persistidos (SHA-256)</td><td><code>user_id → users.id</code> (CASCADE)</td></tr>
+          <tr><td><code>projects</code></td><td>Projetos</td><td><code>owner_id → users.id</code></td></tr>
+          <tr><td><code>project_members</code></td><td>Membros e papéis (<code>OWNER</code>, <code>ADMIN</code>, <code>MEMBER</code>, <code>VIEWER</code>)</td><td><code>project_id → projects</code> (CASCADE), <code>user_id → users</code> (CASCADE); PK composta</td></tr>
+          <tr><td><code>boards</code></td><td>Quadros</td><td><code>project_id → projects</code> (CASCADE)</td></tr>
+          <tr><td><code>task_groups</code></td><td>Colunas do quadro</td><td><code>board_id → boards</code> (CASCADE)</td></tr>
+          <tr><td><code>tasks</code></td><td>Tarefas (cards)</td><td><code>task_group_id → task_groups</code> (CASCADE), <code>creator_id</code>/<code>assignee_id → users</code></td></tr>
+          <tr><td><code>subtasks</code></td><td>Checklist da tarefa</td><td><code>task_id → tasks</code> (CASCADE)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Colunas — <code class="inline">users</code></h3>
+      <table>
+        <thead><tr><th>Coluna</th><th>Tipo</th><th>Restrições</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>UUID</td><td>PK · <code>gen_random_uuid()</code></td></tr>
+          <tr><td><code>username</code></td><td>VARCHAR(50)</td><td>NOT NULL, UNIQUE</td></tr>
+          <tr><td><code>email</code></td><td>VARCHAR(100)</td><td>NOT NULL, UNIQUE</td></tr>
+          <tr><td><code>password_hash</code></td><td>VARCHAR(255)</td><td>NOT NULL · BCrypt (com fallback MD5 legado)</td></tr>
+          <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>default TRUE</td></tr>
+          <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>default <code>CURRENT_TIMESTAMP</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Colunas — <code class="inline">refresh_tokens</code></h3>
+      <table>
+        <thead><tr><th>Coluna</th><th>Tipo</th><th>Restrições</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>UUID</td><td>PK · <code>gen_random_uuid()</code></td></tr>
+          <tr><td><code>user_id</code></td><td>UUID</td><td>FK → <code>users.id</code> (CASCADE), NOT NULL</td></tr>
+          <tr><td><code>token_hash</code></td><td>VARCHAR(64)</td><td>NOT NULL, UNIQUE (SHA-256 hex)</td></tr>
+          <tr><td><code>expires_at</code></td><td>TIMESTAMPTZ</td><td>NOT NULL</td></tr>
+          <tr><td><code>revoked_at</code></td><td>TIMESTAMPTZ</td><td>—</td></tr>
+          <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>default <code>CURRENT_TIMESTAMP</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Colunas — <code class="inline">tasks</code></h3>
+      <table>
+        <thead><tr><th>Coluna</th><th>Tipo</th><th>Restrições</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>UUID</td><td>PK · <code>gen_random_uuid()</code></td></tr>
+          <tr><td><code>task_group_id</code></td><td>UUID</td><td>FK → <code>task_groups</code> (CASCADE)</td></tr>
+          <tr><td><code>creator_id</code></td><td>UUID</td><td>FK → <code>users</code></td></tr>
+          <tr><td><code>assignee_id</code></td><td>UUID</td><td>FK → <code>users</code> (SET NULL)</td></tr>
+          <tr><td><code>title</code></td><td>VARCHAR(200)</td><td>NOT NULL</td></tr>
+          <tr><td><code>description</code></td><td>TEXT</td><td>—</td></tr>
+          <tr><td><code>priority</code></td><td>VARCHAR(20)</td><td>CHECK IN (<code>LOW</code>, <code>MEDIUM</code>, <code>HIGH</code>)</td></tr>
+          <tr><td><code>position</code></td><td>INTEGER</td><td>NOT NULL</td></tr>
+          <tr><td><code>due_date</code></td><td>TIMESTAMPTZ</td><td>—</td></tr>
+          <tr><td><code>is_archived</code></td><td>BOOLEAN</td><td>default FALSE</td></tr>
+          <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>default <code>CURRENT_TIMESTAMP</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Colunas — <code class="inline">subtasks</code></h3>
+      <table>
+        <thead><tr><th>Coluna</th><th>Tipo</th><th>Restrições</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>UUID</td><td>PK · <code>gen_random_uuid()</code></td></tr>
+          <tr><td><code>task_id</code></td><td>UUID</td><td>FK → <code>tasks</code> (CASCADE)</td></tr>
+          <tr><td><code>description</code></td><td>TEXT</td><td>NOT NULL</td></tr>
+          <tr><td><code>is_completed</code></td><td>BOOLEAN</td><td>default FALSE</td></tr>
+          <tr><td><code>position</code></td><td>INTEGER</td><td>NOT NULL</td></tr>
+          <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>default <code>CURRENT_TIMESTAMP</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Demais tabelas</strong>
+        <code class="inline">projects</code>: <code>name</code>, <code>owner_id</code>, <code>archived_at</code>, <code>created_at</code> ·
+        <code class="inline">project_members</code>: <code>role</code> (default <code>MEMBER</code>), <code>joined_at</code> ·
+        <code class="inline">boards</code>: <code>name</code>, <code>color_hex</code> (default <code>#ebecf0</code>), <code>is_archived</code>, <code>created_at</code> ·
+        <code class="inline">task_groups</code>: <code>name</code>, <code>position</code>, <code>is_archived</code>, <code>created_at</code>.
+      </div>
+
+      <h3>Diagrama de entidades (DER)</h3>
+      <figure class="diagram">
+        <img src="DER.drawio.svg" alt="Diagrama Entidade-Relacionamento do projeto">
+        <figcaption>Arquivo: <code class="inline">docs/DER.drawio.svg</code></figcaption>
+      </figure>
+    </section>
+
+    <!-- ===================== MIGRATIONS ===================== -->
+    <section id="migrations">
+      <h2>Migrations Flyway <a class="anchor" href="#migrations">#</a></h2>
+      <p class="lead">Localização: <code class="inline">src/main/resources/db/migration</code> · execução automática no startup
+      (<code class="inline">spring.flyway.baseline-on-migrate: true</code>, <code class="inline">spring.sql.init.mode: never</code>).</p>
+
+      <table>
+        <thead><tr><th>Arquivo</th><th>O que faz</th></tr></thead>
+        <tbody>
+          <tr><td><code>V1__initial_schema.sql</code></td><td>Cria as 7 tabelas base + extensão <code>pgcrypto</code></td></tr>
+          <tr><td><code>V2__create_refresh_tokens.sql</code></td><td>Cria a tabela <code>refresh_tokens</code> + índice em <code>user_id</code></td></tr>
+          <tr><td><code>V3__backfill_project_owners.sql</code></td><td>Garante que todo <code>owner_id</code> existente em <code>projects</code> também esteja em <code>project_members</code> como <code>OWNER</code> (<code>ON CONFLICT ... DO UPDATE</code>)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong><code class="inline">schema.sql</code> como espelho</strong>
+        O arquivo <code class="inline">schema.sql</code> continua no projeto apenas como referência/espelho das migrations.
+        Como <code class="inline">spring.sql.init.mode=never</code>, ele <strong>não é executado</strong> no startup.
+      </div>
+    </section>
+
+    <!-- ===================== ARQUITETURA ===================== -->
+    <section id="arquitetura">
+      <h2>Arquitetura <a class="anchor" href="#arquitetura">#</a></h2>
+      <p>Organização por <strong>domínio</strong>, com três camadas e inversão de dependência por interfaces
+      de casos de uso. O módulo de <code class="inline">projects</code> isola cada SQL em uma classe própria
+      (<code class="inline">infra/repositories/sql</code>).</p>
+
+<pre class="tree"><code>HTTP Request  +  header Authorization: Bearer &lt;accessToken&gt;
+  │
+  ▼
+_commons.security ───── JwtAuthenticationFilter → UserLogged (ScopedValue)
+  │
+  ▼
+application/controllers
+  · AuthController          · UserController
+  · ProjectController       · BoardController
+  · TaskController          · TaskGroupController
+  · SubtaskController
+  │
+  ▼
+domain/usecases  (commands e queries)
+  · regras de negócio, papéis, exceções, validações
+  │
+  ▼
+infra/repositories
+  · JdbcClient · JdbcTemplate · Spring Data JDBC
+  │
+  ▼
+PostgreSQL (migrations Flyway)</code></pre>
+
+      <h4>Fluxo exemplo — arquivar projeto</h4>
+      <p><code class="inline">PATCH /api/v1/projects/{id}/archive</code> →
+      <code class="inline">ProjectController.archive</code> →
+      <code class="inline">ArchiveProject.execute(projectId)</code> (obtém <code class="inline">UserLogged.id()</code>, valida existência, estado e papel) →
+      <code class="inline">IProjectRepository.archive</code> + <code class="inline">archiveBoardsByProjectId</code> + <code class="inline">archiveTaskGroupsByProjectId</code> + <code class="inline">archiveTasksByProjectId</code> →
+      <code class="inline">ArchiveProjectOutput(id, LocalDateTime)</code>.</p>
+
+      <figure class="diagram">
+        <img src="Arquitetura%20-%20Padr%C3%A3o%20Arquitetural.drawio.svg" alt="Diagrama de arquitetura do projeto">
+        <figcaption>Arquivo: <code class="inline">docs/Arquitetura - Padrão Arquitetural.drawio.svg</code></figcaption>
+      </figure>
+    </section>
+
+    <!-- ===================== MÓDULOS ===================== -->
+    <section id="modulos">
+      <h2>Módulos e equipes <a class="anchor" href="#modulos">#</a></h2>
+      <p class="lead">Divisão do trabalho por domínio conforme <code class="inline">README.md</code>.</p>
+
+      <table>
+        <thead><tr><th>Equipe</th><th>Módulo</th><th>Entregas</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>auth</code> / users</td><td>JWT, login, refresh, CRUD de usuários</td><td><span class="badge ok">implementado</span></td></tr>
+          <tr><td>2</td><td><code>boards</code></td><td>CRUD, duplicação, listagem por projeto</td><td><span class="badge ok">implementado</span></td></tr>
+          <tr><td>3</td><td><code>tasks</code></td><td>Criação, atualização, arquivamento</td><td><span class="badge ok">implementado</span></td></tr>
+          <tr><td>4</td><td><code>task-groups</code></td><td>Colunas: criar, renomear, mover, arquivar, excluir</td><td><span class="badge ok">implementado</span></td></tr>
+          <tr><td>5</td><td><code>subtasks</code></td><td>CRUD, toggle e conversão em tarefa (contrato unificado)</td><td><span class="badge ok">implementado</span></td></tr>
+          <tr><td>6</td><td><code>projects</code></td><td>Projetos, membros, papéis, arquivamento, transferência</td><td><span class="badge ok">implementado</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===================== OBSERVAÇÕES ===================== -->
+    <section id="observacoes">
+      <h2>Observações técnicas <a class="anchor" href="#observacoes">#</a></h2>
+      <p class="lead">Notas sobre comportamentos, decisões de implementação e armadilhas conhecidas.</p>
+
+      <div class="callout">
+        <strong>1. Contrato unificado de autenticação</strong>
+        <code class="inline">POST /api/v1/auth/login</code> é o endpoint principal. <code class="inline">POST /api/v1/users/login</code>
+        permanece com <code class="inline">@Deprecated(since = "1.0", forRemoval = false)</code> por compatibilidade —
+        mesmo payload e mesmo retorno.
+      </div>
+
+      <div class="callout">
+        <strong>2. Migração MD5 → BCrypt transparente</strong>
+        <code class="inline">AuthenticateUser</code> primeiro tenta <code class="inline">PasswordEncoder.matches</code> (BCrypt).
+        Se falhar e o hash armazenado casar com o padrão hex 32 caracteres (legado MD5), a senha em texto é validada contra
+        MD5 e o hash é regravado com <code class="inline">passwordEncoder.encode</code>. Após o primeiro login válido, a conta
+        passa a usar apenas BCrypt.
+      </div>
+
+      <div class="callout">
+        <strong>3. Owner é sempre OWNER</strong>
+        <code class="inline">FindProjectSQL</code> força <code class="inline">role = OWNER</code> no DTO quando
+        <code class="inline">owner_id == userId</code>, mesmo se o registro em <code class="inline">project_members</code>
+        estiver ausente. A criação de projeto também insere o criador como <code class="inline">OWNER</code> em
+        <code class="inline">project_members</code> na mesma transação.
+      </div>
+
+      <div class="callout warn">
+        <strong>4. Typo preservado — <code class="inline">isAchived</code></strong>
+        O DTO <code class="inline">TaskResponse</code> mantém o campo <code class="inline">isAchived</code> (com o erro de grafia)
+        por compatibilidade. Qualquer alteração futura deve ser considerada como quebra de contrato.
+      </div>
+
+      <div class="callout warn">
+        <strong>5. Prioridade como <code class="inline">String</code> no modelo</strong>
+        Em <code class="inline">tasks</code>, a coluna <code class="inline">priority</code> é <code class="inline">VARCHAR(20)</code>
+        com <code class="inline">CHECK IN ('LOW','MEDIUM','HIGH')</code>. A entidade <code class="inline">Task</code> expõe o campo como
+        <code class="inline">String</code> (não enum), e a validação de valor só ocorre no banco.
+        Já em <code class="inline">subtasks</code> (conversão), o DTO usa o enum <code class="inline">Priority</code>.
+      </div>
+
+      <div class="callout warn">
+        <strong>6. GET /subtasks/task-groups/{taskId}</strong>
+        Retorna <strong>sempre uma lista JSON</strong>, inclusive vazia. A ordenação é por <code class="inline">position</code>
+        e, em empate, por <code class="inline">created_at</code>.
+      </div>
+
+      <div class="callout">
+        <strong>7. Conversão de subtarefa com reindexação</strong>
+        Ao converter uma subtarefa em tarefa, além de inserir no fim da coluna e remover a subtarefa original,
+        as subtarefas restantes da mesma tarefa-mãe são reindexadas (<code class="inline">position - 1 WHERE position &gt; ?</code>),
+        preservando a sequência sem lacunas.
+      </div>
+
+      <div class="callout">
+        <strong>8. CORS configurável</strong>
+        Origens controladas por <code class="inline">app.cors.allowed-origins</code> em <code class="inline">application.yaml</code>
+        (com override por <code class="inline">CORS_ALLOWED_ORIGINS</code>). Default em dev: Vite (<code class="inline">5173</code>)
+        e <code class="inline">3000</code>, tanto em <code class="inline">localhost</code> quanto em <code class="inline">127.0.0.1</code>.
+      </div>
+
+      <div class="callout">
+        <strong>9. OpenAPI com Bearer</strong>
+        O bean <code class="inline">OpenApiConfig</code> registra o esquema <code class="inline">bearer-jwt</code> em
+        <code class="inline">/v3/api-docs</code>, permitindo autenticar direto no Swagger UI.
+      </div>
+
+      <div class="callout warn">
+        <strong>10. <code class="inline">GET /tasks/test</code> removido</strong>
+        O antigo endpoint de verificação não existe mais. A contagem de <code class="inline">tasks</code>
+        caiu de 5 para 4 endpoints.
+      </div>
+
+      <div class="callout">
+        <strong>11. Sem migrations destrutivas</strong>
+        As três migrations usam <code class="inline">CREATE TABLE IF NOT EXISTS</code> / <code class="inline">ON CONFLICT</code>,
+        então podem rodar contra bases já populadas sem perda de dados. O <code class="inline">schema.sql</code> continua
+        como espelho, mas não é executado (<code class="inline">spring.sql.init.mode=never</code>).
+      </div>
+    </section>
+
+    <footer>
+      <p><strong>if-project API</strong> · Documentação consolidada a partir de
+      <code class="inline">docs/API_FRONTEND.md</code>, <code class="inline">build.gradle</code>,
+      <code class="inline">application.yaml</code>, <code class="inline">schema.sql</code>,
+      migrations Flyway, <code class="inline">README.md</code> e do código-fonte em <code class="inline">src/main</code>.</p>
+      <p>Projeto acadêmico — ADS / IFCE · 2026.1 · versão 0.0.1 · branch <code class="inline">develop</code></p>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // ---------- Tema claro / escuro ----------
+  (function initTheme() {
+    const root = document.documentElement;
+    const KEY = 'ifproject-docs-theme';
+    const media = window.matchMedia('(prefers-color-scheme: light)');
+
+    const stored = localStorage.getItem(KEY);
+    root.dataset.theme = stored || (media.matches ? 'light' : 'dark');
+
+    const ICONS = {
+      dark: '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>',
+      light: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>'
+    };
+
+    const btn = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+
+    const paint = () => {
+      const isDark = root.dataset.theme === 'dark';
+      icon.innerHTML = isDark ? ICONS.dark : ICONS.light;
+      label.textContent = isDark ? 'Tema escuro' : 'Tema claro';
+      btn.setAttribute('aria-pressed', String(!isDark));
+      btn.title = isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro';
+    };
+
+    paint();
+
+    btn.addEventListener('click', () => {
+      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(KEY, root.dataset.theme);
+      paint();
+    });
+
+    window.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+  })();
+
+  // Botões de copiar (ignora a árvore de diretórios)
+  document.querySelectorAll('pre:not(.tree)').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'copy';
+    btn.textContent = 'copiar';
+    btn.addEventListener('click', () => {
+      const text = pre.querySelector('code')?.innerText ?? pre.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'copiado!';
+        setTimeout(() => (btn.textContent = 'copiar'), 1400);
+      });
+    });
+    pre.appendChild(btn);
+  });
+
+  // Scroll spy no sumário
+  const links = [...document.querySelectorAll('#toc a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+  const spy = () => {
+    const pos = window.scrollY + 120;
+    let current = sections[0];
+    for (const s of sections) if (s.offsetTop <= pos) current = s;
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current.id));
+  };
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+
+  // Filtro de endpoints
+  const filter = document.getElementById('filter');
+  filter.addEventListener('input', () => {
+    const q = filter.value.trim().toLowerCase();
+    document.querySelectorAll('.endpoint').forEach(ep => {
+      const hay = ((ep.dataset.search || '') + ' ' +
