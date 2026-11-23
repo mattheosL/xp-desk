@@ -1,11 +1,6 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useAuth } from "../hooks/useAuth";
-import {
-  hashPassword,
-  readStoredUsers,
-  writeSession,
-  writeStoredUsers,
-} from "../utils/storage";
+import { writeSession } from "../utils/storage";
 import "./Profile.css";
 
 type MessageType = "success" | "error" | "";
@@ -60,67 +55,60 @@ export function Profile() {
   }
 
   function handleSaveProfile(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setProfileMessage({ text: "", type: "" });
+  e.preventDefault();
+  setProfileMessage({ text: "", type: "" });
 
-    const cleanUsername = username.trim();
-    const cleanEmail = email.trim();
+  const cleanUsername = username.trim();
+  const cleanEmail = email.trim();
 
-    if (cleanUsername.length < 3 || cleanUsername.length > 10) {
-      setProfileMessage({
-        text: "O nome deve ter entre 3 e 10 caracteres.",
-        type: "error",
-      });
-      return;
-    }
+  if (!user) {
+    setProfileMessage({
+      text: "Usuário não autenticado.",
+      type: "error",
+    });
+    return;
+  }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      setProfileMessage({
-        text: "Informe um e-mail válido.",
-        type: "error",
-      });
-      return;
-    }
+  if (cleanUsername.length < 3 || cleanUsername.length > 10) {
+    setProfileMessage({
+      text: "O nome deve ter entre 3 e 10 caracteres.",
+      type: "error",
+    });
+    return;
+  }
 
-    setIsSavingProfile(true);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    setProfileMessage({
+      text: "Informe um e-mail válido.",
+      type: "error",
+    });
+    return;
+  }
 
-    setTimeout(() => {
-      if (user) {
-        const updatedUser = {
-          ...user,
-          username: cleanUsername,
-          email: cleanEmail,
-        };
-        writeSession(updatedUser);
+  setIsSavingProfile(true);
 
-        const storedUsers = readStoredUsers();
-        const existsInStorage = storedUsers.some((item) => item.id === user.id);
+  const updatedUser = {
+    ...user,
+    username: cleanUsername,
+    email: cleanEmail,
+  };
 
-        if (existsInStorage) {
-          writeStoredUsers(
-            storedUsers.map((item) =>
-              item.id === user.id
-                ? { ...item, username: cleanUsername, email: cleanEmail }
-                : item,
-            ),
-          );
-        }
-      }
+  writeSession(updatedUser);
 
-      setUsername(cleanUsername);
-      setEmail(cleanEmail);
-      setEditing(false);
-      setIsSavingProfile(false);
+  setUsername(cleanUsername);
+  setEmail(cleanEmail);
+  setEditing(false);
+  setIsSavingProfile(false);
 
-      setProfileMessage({
-        text: "Perfil atualizado com sucesso!",
-        type: "success",
-      });
-    }, 500);
+  setProfileMessage({
+    text: "Dados atualizados na sessão local. A alteração ainda não foi enviada ao servidor.",
+    type: "success",
+  });
   }
 
   async function handleSavePassword(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     setPasswordMessage({ text: "", type: "" });
 
     if (!oldPassword) {
@@ -150,47 +138,22 @@ export function Profile() {
     setIsSavingPassword(true);
 
     try {
-      if (user) {
-        const storedUsers = readStoredUsers();
-        const account = storedUsers.find((item) => item.id === user.id);
+      // A integração com o endpoint de alteração de senha
+      // será adicionada aqui.
 
-        if (account) {
-          const oldHash = await hashPassword(oldPassword);
-          if (account.passwordHash !== oldHash) {
-            setPasswordMessage({
-              text: "A senha atual está incorreta.",
-              type: "error",
-            });
-            setIsSavingPassword(false);
-            return;
-          }
-          const newHash = await hashPassword(newPassword);
-          writeStoredUsers(
-            storedUsers.map((item) =>
-              item.id === user.id ? { ...item, passwordHash: newHash } : item,
-            ),
-          );
-        }
-      }
-
-      setTimeout(() => {
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setIsSavingPassword(false);
-        setShowPasswordForm(false);
-
-        setPasswordMessage({
-          text: "Senha atualizada com sucesso!",
-          type: "success",
-        });
-      }, 500);
-    } catch (err) {
-      setIsSavingPassword(false);
       setPasswordMessage({
-        text: err instanceof Error ? err.message : "Erro ao atualizar senha.",
+        text: "A alteração de senha ainda não está integrada ao backend.",
         type: "error",
       });
+    } catch (err) {
+      setPasswordMessage({
+        text: err instanceof Error
+          ? err.message
+          : "Erro ao atualizar senha.",
+        type: "error",
+      });
+    } finally {
+      setIsSavingPassword(false);
     }
   }
 

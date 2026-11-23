@@ -1,6 +1,7 @@
 
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import './Sidebar.css';
 
 export function Sidebar() {
   const { logout } = useAuth();
@@ -37,13 +38,22 @@ export function Sidebar() {
           <span>Projetos</span>
         </NavLink>
 
+        <span
+          className="sidebar-link sidebar-link--disabled"
+          aria-disabled="true"
+        >
+          <span className="nav-icon" aria-hidden="true">▦</span>
+          <span>Quadros Kanban</span>
+          <span className="nav-soon">EM BREVE</span>
+        </span>
+
         <NavLink
           to="/app/perfil"
           className={({ isActive }) =>
             `sidebar-link ${isActive ? 'active' : ''}`
           }
         >
-          <span className="nav-icon" aria-hidden="true">☺</span>
+          <span className="nav-icon" aria-hidden="true">◉</span>
           <span>Perfil</span>
         </NavLink>
       </nav>
