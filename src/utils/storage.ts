@@ -4,8 +4,6 @@ const SESSION_KEY = 'xpdesk-session';
 const ACCESS_TOKEN_KEY = 'xpdesk-access-token';
 const REFRESH_TOKEN_KEY = 'xpdesk-refresh-token';
 
-// ── Session (user data) ──
-
 export function readSession(): AuthUser | null {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
@@ -35,8 +33,6 @@ export function clearSession(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
-
-// ── Tokens ──
 
 export function readAccessToken(): string | null {
   return localStorage.getItem(ACCESS_TOKEN_KEY);

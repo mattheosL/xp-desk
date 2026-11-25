@@ -4,7 +4,6 @@ function plural(value: number, singular: string, pluralForm: string) {
   return `${value} ${value === 1 ? singular : pluralForm}`;
 }
 
-/** Converte uma data ISO em texto relativo: "hoje", "há 2 dias", "há 1 semana", "há 1 mês". */
 export function formatRelative(iso: string, now: number = Date.now()): string {
   const time = Date.parse(iso);
   if (Number.isNaN(time)) return 'data desconhecida';

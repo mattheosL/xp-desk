@@ -10,7 +10,6 @@ interface XpPanelProps {
   children: ReactNode;
 }
 
-/** Janela com barra de título azul, no estilo Windows XP. */
 export function XpPanel({ title, icon, subtitle, footer, id, className = '', children }: XpPanelProps) {
   const headingId = id ? `${id}-title` : undefined;
   return (

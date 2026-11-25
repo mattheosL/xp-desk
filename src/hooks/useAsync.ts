@@ -13,13 +13,6 @@ interface AsyncState<T> {
   reset: () => void;
 }
 
-/**
- * Hook to manage async operations with loading/error/success states.
- *
- * Usage:
- *   const { run, isLoading, isError, error, isSuccess } = useAsync(myAsyncFn);
- *   await run(arg1, arg2);
- */
 export function useAsync<T>(
   asyncFn: (...args: never[]) => Promise<T>,
 ): AsyncState<T> {

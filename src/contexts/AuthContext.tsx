@@ -38,7 +38,6 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => readSession());
 
-  // Listen for auth:expired events (fired by api.ts on failed refresh)
   useEffect(() => {
     function handleExpired() {
       clearSession();
@@ -66,14 +65,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const cleanUsername = username.trim();
     const normalizedEmail = email.trim().toLowerCase();
 
-    // 1. Create user
     await createUser({
       username: cleanUsername,
       email: normalizedEmail,
       password,
     });
 
-    // 2. Auto-login after registration
     const response = await loginUser({
       email: normalizedEmail,
       password,

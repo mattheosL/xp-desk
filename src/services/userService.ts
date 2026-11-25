@@ -1,7 +1,6 @@
 import type { AuthResponse, AuthUser, ChangePasswordInput, UpdateUserInput } from '../types/user';
 import { request } from './api';
 
-// ── Auth ──
 
 export async function loginUser(input: {
   email: string;

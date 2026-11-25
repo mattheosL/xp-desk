@@ -33,16 +33,13 @@ export interface ProjectMember {
   role: ProjectRole;
 }
 
-/** Resumo de projeto usado no dashboard (lista vinda de /api/v1/projects). */
 export interface ProjectSummary {
   id: string;
   name: string;
   description: string;
   role: ProjectRole;
   archived: boolean;
-  /** ISO 8601 — última atualização/acesso do projeto. */
   updatedAt: string;
-  /** ISO 8601 — preenchido quando o projeto está arquivado. */
   archivedAt?: string;
   color?: ProjectColor;
   members: ProjectMember[];

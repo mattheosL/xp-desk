@@ -1,7 +1,5 @@
 import type { ProjectColor } from '../../types/project';
 
-/* Ícones em SVG inline, no estilo dos ícones de pasta/usuário do Windows XP. */
-
 const FOLDER_COLORS: Record<ProjectColor, { back: string; front: string; stroke: string }> = {
   blue: { back: '#2f63c4', front: '#5b95e6', stroke: '#1f4a9c' },
   green: { back: '#2f8a3c', front: '#5cbf62', stroke: '#22692d' },

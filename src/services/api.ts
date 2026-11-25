@@ -15,11 +15,9 @@ export class ApiError extends Error {
     this.name = 'ApiError';
   }
 }
-// ── Config ──
 
 const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 
-// ── Helpers ──
 
 function messageFromBody(body: string, status: number): string {
   if (!body) {
@@ -53,7 +51,6 @@ function messageFromBody(body: string, status: number): string {
   return `A API retornou HTTP ${status}.`;
 }
 
-// ── Token refresh with deduplication ──
 
 let refreshPromise: Promise<string> | null = null;
 
@@ -84,10 +81,6 @@ async function refreshAccessToken(): Promise<string> {
   return data.accessToken;
 }
 
-/**
- * Ensures only one refresh request runs at a time.
- * Concurrent callers share the same promise.
- */
 function refreshOnce(): Promise<string> {
   if (!refreshPromise) {
     refreshPromise = refreshAccessToken().finally(() => {
@@ -96,8 +89,6 @@ function refreshOnce(): Promise<string> {
   }
   return refreshPromise;
 }
-
-// ── Main request function ──
 
 export async function request<T>(
   path: string,
@@ -126,7 +117,6 @@ export async function request<T>(
     );
   }
 
-  // If 401 and we have a refresh token, try to refresh once and retry
   if (response.status === 401 && auth && readRefreshToken()) {
     try {
       const newToken = await refreshOnce();
@@ -152,14 +142,11 @@ export async function request<T>(
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
-/** Prefixo das rotas da API. Em desenvolvimento o Vite faz proxy de /api para o backend. */
 export const API_BASE_URL: string = import.meta.env.VITE_API_URL ?? '/api/v1';
 
-/** Host exibido na barra de status (ex.: localhost:8080). */
 export const API_HOST_LABEL: string = import.meta.env.VITE_API_HOST ?? 'localhost:8080';
 
 const REQUEST_TIMEOUT_MS = 4000;
-
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -168,10 +155,6 @@ interface RequestOptions {
   signal?: AbortSignal;
 }
 
-/**
- * Requisição JSON para a API. A API ainda não usa JWT: o usuário é identificado
- * pelo header X-User-Id (UUID).
- */
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', userId, body, signal } = options;
   const controller = new AbortController();
