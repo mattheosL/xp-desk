@@ -1,3 +1,4 @@
+
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -13,31 +14,54 @@ export function Sidebar() {
   return (
     <aside className="app-sidebar" aria-label="Navegação principal">
       <div className="sidebar-caption">ESPAÇO DE TRABALHO</div>
+
       <nav className="sidebar-nav">
-        <NavLink to="/app" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+        <NavLink
+          to="/app"
+          end
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'active' : ''}`
+          }
+        >
           <span className="nav-icon" aria-hidden="true">⌂</span>
           <span>Visão geral</span>
         </NavLink>
-        <NavLink to="/app/projetos" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+
+        <NavLink
+          to="/app/projetos"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'active' : ''}`
+          }
+        >
           <span className="nav-icon" aria-hidden="true">▤</span>
           <span>Projetos</span>
         </NavLink>
-        <NavLink to="/app/perfil" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+
+        <NavLink
+          to="/app/perfil"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'active' : ''}`
+          }
+        >
           <span className="nav-icon" aria-hidden="true">☺</span>
           <span>Perfil</span>
         </NavLink>
       </nav>
 
-      <div className="sidebar-note">
-        
-      </div>
+      <div className="sidebar-note"></div>
 
-      <button type="button" className="sidebar-link sidebar-link--logout" onClick={handleLogout}>
+      <button
+        type="button"
+        className="sidebar-link sidebar-link--logout"
+        onClick={handleLogout}
+      >
         <span className="nav-icon" aria-hidden="true">↗</span>
         <span>Sair</span>
       </button>
 
-      <div className="sidebar-version">SPRINT 02 / USUÁRIO E PROJETOS</div>
+      <div className="sidebar-version">
+        SPRINT 02 / USUÁRIO E PROJETOS
+      </div>
     </aside>
   );
 }
